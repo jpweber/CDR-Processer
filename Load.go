@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-01-29 11:26:00
+* @Last Modified time: 2015-01-29 11:46:59
  */
 
 package main
@@ -68,5 +68,10 @@ func main() {
 	// fmt.Println(cdrData)
 	// fmt.Println(records)
 	fmt.Println("Done parsing file")
+	for key, value := range records[1] {
+		fmt.Println(key, value, \n)
+	}
+
+	// CDR.JsonCdr(records[1])
 
 }
