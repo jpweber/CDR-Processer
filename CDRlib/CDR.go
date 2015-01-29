@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-01-29 11:39:28
+* @Last Modified time: 2015-01-29 14:56:59
  */
 
 package CDR
@@ -261,17 +261,28 @@ import (
 // 	rawfile string
 // }
 
+// Cdrcollection holds too slices containing Stop records and attempt reclrds
+type CdrCollection struct {
+	Stops    [][]string
+	Attempts [][]string
+}
+
+// FillCDRMap takes an array of cdr keys and and array of cdr values
+// and returns a map with the passed in key value pairs
 func FillCDRMap(keys []string, values []string) map[string]string {
 
 	cdrMap := make(map[string]string)
 
 	for i, value := range values {
+		// fmt.Println(keys[i], value, "\n")
 		cdrMap[keys[i]] = value
 	}
 
 	return cdrMap
 }
 
+// CdrStopKeys generates and array of cdr keys to be used in a map
+// if we need to capture new fields they would need to be added here
 func CdrStopKeys() []string {
 
 	keys := []string{
@@ -523,7 +534,8 @@ func CdrStopKeys() []string {
 
 }
 
-func JsonCdr(cdrRecord map[string]string) {
+// JsonCdr converts a CDR records in a map to a json string
+func JsonCdr(cdrRecord map[string]string) string {
 	jsondata, err := json.Marshal(cdrRecord) // convert to JSON
 
 	if err != nil {
@@ -531,5 +543,24 @@ func JsonCdr(cdrRecord map[string]string) {
 		os.Exit(1)
 	}
 
-	fmt.Println(string(jsondata))
+	// fmt.Println(string(jsondata))
+	return string(jsondata)
+}
+
+// SplitTypes takes raw parsed csv data and splits the stop records
+// and attempt records in to seperate collections
+func SplitTypes(values [][]string) *CdrCollection {
+	c := new(CdrCollection)
+
+	for _, value := range values {
+		if value[0] == "ATTEMPT" {
+			// fmt.Println(value)
+			c.Attempts = append(c.Attempts, value)
+		}
+		if value[0] == "STOP" {
+			c.Stops = append(c.Stops, value)
+		}
+	}
+
+	return c
 }
