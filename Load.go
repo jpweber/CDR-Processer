@@ -2,8 +2,10 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-01-29 14:57:23
+* @Last Modified time: 2015-04-07 14:03:51
  */
+
+//parses CDR file in to key value map and then publishes to rabbitMQ
 
 package main
 
@@ -13,20 +15,27 @@ import (
 	"fmt"
 	"os"
 	// "strconv"
-	"bluetone/cdrtest/CDRlib"
+	"ko/CDRlib"
+	// "bluetone/cdrtest/Queuelib"
 	// "reflect"
+	//"sync"
 )
 
 func main() {
-	csvFile, err := os.Open("./1000309.ACT")
+
+	//standard methods
+	// csvFile, err := os.Open("./1000309.ACT")
 	// csvFile, err := os.Open("./data.csv")
+	csvFile, err := os.Open("./Stop.csv")
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	defer csvFile.Close()
+	// standard methods
 
+	// reader := csv.NewReader(bytes.NewReader(csvFile))
 	reader := csv.NewReader(csvFile)
 	reader.FieldsPerRecord = -1
 	csvData, err := reader.ReadAll()
@@ -36,25 +45,31 @@ func main() {
 		os.Exit(1)
 	}
 
-	// fmt.Println(csvData)
-
-	// for _, value := range csvData[0] {
-	// 	fmt.Println(value)
-	// }
-
 	cdrCollection := CDR.SplitTypes(csvData)
+	if cdrCollection != nil {
+		//if we've created a cdr collection we no longer need csvData
+		//nil it out to release memory for GC
+		csvData = nil
+	}
 
+	// create stop record map (dictionary to me)
 	stopRecords := make([]map[string]string, len(cdrCollection.Stops))
 	for i, value := range cdrCollection.Stops {
-		cdrStopData := CDR.FillCDRMap(CDR.CdrStopKeys(), value)
+		cdrStopData := CDR.FillCDRMap(CDR.CdrStopKeys(), value) //normal
+		//if we want to break out subfields
+		cdrStopData = CDR.BreakOutSubFields(cdrStopData)
 		stopRecords[i] = cdrStopData
 	}
 
+	// create attempt record map (dictionary to me)
+	attemptRecords := make([]map[string]string, len(cdrCollection.Attempts))
+	for i, value := range cdrCollection.Attempts {
+		cdrAttemptData := CDR.FillCDRMap(CDR.CdrAttemptKeys(), value)
+		attemptRecords[i] = cdrAttemptData
+	}
+
 	fmt.Println("Done parsing file")
-
-	//!debug
-	// fmt.Println(stopRecords[0])
-	json := CDR.JsonCdr(stopRecords[1])
-	// fmt.Println(json)
-
+	// go publish(c, stopRecords, &wg)
+	// go publish(c, attemptRecords, &wg)
+	fmt.Println(stopRecords)
 }
