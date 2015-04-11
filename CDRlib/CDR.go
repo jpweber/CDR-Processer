@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-07 14:03:47
+* @Last Modified time: 2015-04-10 20:10:40
  */
 
 package CDR
@@ -43,6 +43,12 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		cdrMap["Shelf"] = accountingIdSfs["shelf"]
 		cdrMap["Boot_Count"] = accountingIdSfs["bootCount"]
 		cdrMap["Call_ID"] = accountingIdSfs["callId"]
+	}
+
+	if cdrMap["Route_Selected"] != "" {
+		routeSelectedSfs := CDRSubfields.RouteSelected(cdrMap["Route_Selected"])
+		cdrMap["RS_Gateway"] = routeSelectedSfs["RS_Gateway"]
+		cdrMap["RS_TrunkGroup"] = routeSelectedSfs["RS_Trunkgroup"]
 	}
 
 	return cdrMap

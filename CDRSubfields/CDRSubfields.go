@@ -3,6 +3,7 @@ package CDRSubfields
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 func AccountingID(accountingid string) map[string]string {
@@ -22,7 +23,7 @@ func AccountingID(accountingid string) map[string]string {
 
 func RouteSelected(routeSelected string) map[string]string {
 
-	parts := strings.Split(routeSelected, ":"))
+	parts := strings.Split(routeSelected, ":")
 	routeSelectedMap := make(map[string]string)
 	routeSelectedMap["RS_Gateway"] = parts[0]
 	routeSelectedMap["RS_Trunkgroup"] = parts[1]
