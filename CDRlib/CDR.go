@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-10 20:41:20
+* @Last Modified time: 2015-04-10 21:25:37
  */
 
 package CDR
@@ -63,6 +63,13 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		egressIpSfs := CDRSubfields.EgressCirIPEndPoint(cdrMap["Egress_IP_Circuit_End_Point"])
 		cdrMap["EIPE_local"] = egressIpSfs["egressIPendpoint_local"]
 		cdrMap["EIPE_remote"] = egressIpSfs["egressIPendpoint_remote"]
+	}
+
+	if cdrMap["Ingress_Protocol_Variant_Spec_Data"] != "" {
+		ingressProtVariSpecDataSfs := CDRSubfields.IngressProtocolVariantSpecData(cdrMap["Ingress_Protocol_Variant_Spec_Data"])
+		for key, value := range ingressProtVariSpecDataSfs {
+			cdrMap[key] = value
+		}
 	}
 
 	return cdrMap
