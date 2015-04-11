@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-10 20:10:40
+* @Last Modified time: 2015-04-10 20:41:20
  */
 
 package CDR
@@ -38,6 +38,7 @@ func FillCDRMap(keys []string, values []string) map[string]string {
 
 func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 
+	//0x0001A09A00720365
 	if cdrMap["Accounting_ID"] != "" {
 		accountingIdSfs := CDRSubfields.AccountingID(cdrMap["Accounting_ID"])
 		cdrMap["Shelf"] = accountingIdSfs["shelf"]
@@ -45,10 +46,23 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		cdrMap["Call_ID"] = accountingIdSfs["callId"]
 	}
 
+	//CMHGSX3:03-CMHGSX3-NTAND-ISUP01
 	if cdrMap["Route_Selected"] != "" {
 		routeSelectedSfs := CDRSubfields.RouteSelected(cdrMap["Route_Selected"])
 		cdrMap["RS_Gateway"] = routeSelectedSfs["RS_Gateway"]
 		cdrMap["RS_TrunkGroup"] = routeSelectedSfs["RS_Trunkgroup"]
+	}
+
+	if cdrMap["Ingress_IP_Circuit_End_Point"] != "" {
+		ingressIpSfs := CDRSubfields.IngressCirIPEndPoint(cdrMap["Ingress_IP_Circuit_End_Point"])
+		cdrMap["IIPE_local"] = ingressIpSfs["ingressIPendpoint_local"]
+		cdrMap["IIPE_remote"] = ingressIpSfs["ingressIPendpoint_remote"]
+	}
+
+	if cdrMap["Egress_IP_Circuit_End_Point"] != "" {
+		egressIpSfs := CDRSubfields.EgressCirIPEndPoint(cdrMap["Egress_IP_Circuit_End_Point"])
+		cdrMap["EIPE_local"] = egressIpSfs["egressIPendpoint_local"]
+		cdrMap["EIPE_remote"] = egressIpSfs["egressIPendpoint_remote"]
 	}
 
 	return cdrMap
