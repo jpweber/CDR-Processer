@@ -203,3 +203,25 @@ func EgressCodecType(egressCodecType string) map[string]string {
 
 	return egressCodecTypeMap
 }
+
+func CallSetupDelay(callSetupDelay string) map[string]string {
+	parts := strings.Split(callSetupDelay, ",")
+	callSetupDelayMap := make(map[string]string)
+	callSetupDelayMap["CSD_Request_Latency"] = parts[0]
+	callSetupDelayMap["CSD_Downstream_Latency"] = parts[1]
+	callSetupDelayMap["CSD_Response_Latency"] = parts[2]
+	callSetupDelayMap["CSD_Total_Latency"] = parts[3]
+
+	return callSetupDelayMap
+}
+
+// func IngressDspData(ingressDspData string) map[string]string {
+// 	parts := strings.Split(ingressDspData, ",")
+// 	callSetupDelayMap := make(map[string]string)
+// 	callSetupDelayMap["CSD_Request_Latency"] = parts[0]
+// 	callSetupDelayMap["CSD_Downstream_Latency"] = parts[1]
+// 	callSetupDelayMap["CSD_Response_Latency"] = parts[2]
+// 	callSetupDelayMap["CSD_Total_Latency"] = parts[3]
+
+// 	return callSetupDelayMap
+// }

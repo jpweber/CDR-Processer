@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-13 19:23:09
+* @Last Modified time: 2015-04-13 19:34:44
  */
 
 package CDR
@@ -37,6 +37,10 @@ func FillCDRMap(keys []string, values []string) map[string]string {
 }
 
 func BreakOutSubFields(cdrMap map[string]string) map[string]string {
+	//this is ripe for an optimizing refactor. Working it out very non-DRY for simplicity of business logic
+	//refactor this down later. Thinking on break out function with a pre-made map of fields that have subfields
+	//to break out then just loop over them. Put a function in the subifields package to determine which subfield
+	// function to use for the breakout/parsing.
 
 	//0x0001A09A00720365
 	if cdrMap["Accounting_ID"] != "" {
@@ -89,6 +93,13 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 	if cdrMap["Egress_Codec_Type"] != "" {
 		egressCodecTypeSfs := CDRSubfields.EgressCodecType(cdrMap["Egress_Codec_Type"])
 		for key, value := range egressCodecTypeSfs {
+			cdrMap[key] = value
+		}
+	}
+
+	if cdrMap["Call_Setup_Delay"] != "" {
+		callSetupDelaySfs := CDRSubfields.CallSetupDelay(cdrMap["Call_Setup_Delay"])
+		for key, value := range callSetupDelaySfs {
 			cdrMap[key] = value
 		}
 	}
