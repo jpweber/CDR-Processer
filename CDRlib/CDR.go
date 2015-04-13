@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-10 21:25:37
+* @Last Modified time: 2015-04-13 19:10:45
  */
 
 package CDR
@@ -68,6 +68,13 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 	if cdrMap["Ingress_Protocol_Variant_Spec_Data"] != "" {
 		ingressProtVariSpecDataSfs := CDRSubfields.IngressProtocolVariantSpecData(cdrMap["Ingress_Protocol_Variant_Spec_Data"])
 		for key, value := range ingressProtVariSpecDataSfs {
+			cdrMap[key] = value
+		}
+	}
+
+	if cdrMap["Egress_Protocol_Variant_Spec_Data"] != "" {
+		egressProtVariSpecDataSfs := CDRSubfields.IngressProtocolVariantSpecData(cdrMap["Egress_Protocol_Variant_Spec_Data"])
+		for key, value := range egressProtVariSpecDataSfs {
 			cdrMap[key] = value
 		}
 	}

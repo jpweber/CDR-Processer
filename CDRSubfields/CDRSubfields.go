@@ -107,8 +107,6 @@ func IngressProtocolVariantSpecData(ingressProtocolVariantSpecData string) map[s
 	}
 
 	for i, subfield := range subfields {
-		fmt.Println(subfield)
-		fmt.Println(i)
 		if i < len(parts) {
 			ingressProtocolVariantSpecDataMap[subfield] = parts[i]
 		} else {
@@ -117,4 +115,71 @@ func IngressProtocolVariantSpecData(ingressProtocolVariantSpecData string) map[s
 	}
 
 	return ingressProtocolVariantSpecDataMap
+}
+
+//SIP,b10e953ce9b911e298a600151737326e@204.124.15.58,<sip:7875315936@204.124.15.58:5065;user=phone>;tag=177540785-3792812521-352364184-1848784663,<sip:19106333559@76.10.220.14;user=phone>;tag=gK00f27408,0,,,,sip:19106333559@76.10.220.14;user=phone,,,,sip:7875315936@204.124.15.58:5065;user=phone,sip:19106333559@76.10.220.14:5060,,,,1,BYE,16,0,0,,0,0,,,,,,,,1,0,0,0,,
+func EngressProtocolVariantSpecData(egressProtocolVariantSpecData string) map[string]string {
+	parts := strings.Split(egressProtocolVariantSpecData, ",")
+	fmt.Println(len(parts))
+	egressProtocolVariantSpecDataMap := make(map[string]string)
+	subfields := []string{
+		"EPVSD_Protocol_Variant",
+		"EPVSD_Call_ID",
+		"EPVSD_From",
+		"EPVSD_To,",
+		"EPVSD_Blank_Field",
+		"EPVSD_SIP-T_Version",
+		"EPVSD_SIP_URI_PAI_Display Name",
+		"EPVSD_P-K_CallFwdLast_User_Param",
+		"EPVSD_SIP Req URI User/Host",
+		"EPVSD_SIP URI PAI User/Host",
+		"EPVSD_Proxy_Auth_Username",
+		"EPVSD_Tel_URI_PAI_Display_Name",
+		"EPVSD_Invite_Contact_Header",
+		"EPVSD_200_OK_Invite_Contact_Header",
+		"EPVSD_P-K_CallFwdOrig_Redir_Reason",
+		"EPVSD_Tel_URI_PAI_User_Name",
+		"EPVSD_P-Sig_Info_Contractor_Num",
+		"EPVSD_ACK_Rx'd_for_200_OK",
+		"EPVSD_Status_Msg_for_Call_Release",
+		"EPVSD_Reason_Header_Value_Q850",
+		"EPVSD_NAPT_Status_Signaling",
+		"EPVSD_NAPT_Status_Media",
+		"EPVSD_NAPT_Orig_Peer_SDP_Addr",
+		"EPVSD_UUI_Sending_Count",
+		"EPVSD_UUI_Receiving_Count",
+		"EPVSD_Service_Info",
+		"EPVSD_ICID",
+		"EPVSD_Gen'd_Host",
+		"EPVSD_Orig_IOI",
+		"EPVSD_Term_IOI",
+		"EPVSD_Special_Routing_Table_Num",
+		"EPVSD_IP_Address_For_FQDN_Call",
+		"EPVSD_SIP_Transport_Protocol",
+		"EPVSD_Direct_Media",
+		"EPVSD_Inbound_SMM_Indicator",
+		"EPVSD_Outbound_SMM_Indicator",
+		"EPVSD_Originating_Charge_Area",
+		"EPVSD_Terminating_Charge_Area",
+		"EPVSD_Feature_Tag_Contact",
+		"EPVSD_Feature_Tag_Accept-Contact",
+		"EPVSD_P-Charging-Function-Address",
+		"EPVSD_P-Called-Party-Id",
+		"EPVSD_P-Visited-Network-Id",
+		"EPVSD_Direct_Media_with_NAPT_Call",
+		"EPVSD_Inbound_SMM_Profile_Name",
+		"EPVSD_Outbound_SMM_Profile_Name",
+	}
+
+	for i, subfield := range subfields {
+		fmt.Println(subfield)
+		fmt.Println(i)
+		if i < len(parts) {
+			egressProtocolVariantSpecDataMap[subfield] = parts[i]
+		} else {
+			egressProtocolVariantSpecDataMap[subfield] = ""
+		}
+	}
+
+	return egressProtocolVariantSpecDataMap
 }
