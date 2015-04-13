@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-13 19:10:45
+* @Last Modified time: 2015-04-13 19:23:09
  */
 
 package CDR
@@ -75,6 +75,20 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 	if cdrMap["Egress_Protocol_Variant_Spec_Data"] != "" {
 		egressProtVariSpecDataSfs := CDRSubfields.IngressProtocolVariantSpecData(cdrMap["Egress_Protocol_Variant_Spec_Data"])
 		for key, value := range egressProtVariSpecDataSfs {
+			cdrMap[key] = value
+		}
+	}
+
+	if cdrMap["Ingress_Codec_Type"] != "" {
+		ingressCodecTypeSfs := CDRSubfields.IngressCodecType(cdrMap["Ingress_Codec_Type"])
+		for key, value := range ingressCodecTypeSfs {
+			cdrMap[key] = value
+		}
+	}
+
+	if cdrMap["Egress_Codec_Type"] != "" {
+		egressCodecTypeSfs := CDRSubfields.EgressCodecType(cdrMap["Egress_Codec_Type"])
+		for key, value := range egressCodecTypeSfs {
 			cdrMap[key] = value
 		}
 	}

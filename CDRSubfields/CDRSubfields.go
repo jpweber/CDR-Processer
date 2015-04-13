@@ -183,3 +183,23 @@ func EngressProtocolVariantSpecData(egressProtocolVariantSpecData string) map[st
 
 	return egressProtocolVariantSpecDataMap
 }
+
+func IngressCodecType(ingressCodecType string) map[string]string {
+	parts := strings.Split(ingressCodecType, ":")
+	ingressCodecTypeMap := make(map[string]string)
+	ingressCodecTypeMap["ICT_Network_Type"] = parts[0]
+	ingressCodecTypeMap["ICT_Codec_Type"] = parts[1]
+	ingressCodecTypeMap["ICT_Audio_Encoding_Type"] = parts[2]
+
+	return ingressCodecTypeMap
+}
+
+func EgressCodecType(egressCodecType string) map[string]string {
+	parts := strings.Split(egressCodecType, ":")
+	egressCodecTypeMap := make(map[string]string)
+	egressCodecTypeMap["ECT_Network_Type"] = parts[0]
+	egressCodecTypeMap["ECT_Codec_Type"] = parts[1]
+	egressCodecTypeMap["ECT_Audio_Encoding_Type"] = parts[2]
+
+	return egressCodecTypeMap
+}
