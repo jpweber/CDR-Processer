@@ -215,13 +215,52 @@ func CallSetupDelay(callSetupDelay string) map[string]string {
 	return callSetupDelayMap
 }
 
-// func IngressDspData(ingressDspData string) map[string]string {
-// 	parts := strings.Split(ingressDspData, ",")
-// 	callSetupDelayMap := make(map[string]string)
-// 	callSetupDelayMap["CSD_Request_Latency"] = parts[0]
-// 	callSetupDelayMap["CSD_Downstream_Latency"] = parts[1]
-// 	callSetupDelayMap["CSD_Response_Latency"] = parts[2]
-// 	callSetupDelayMap["CSD_Total_Latency"] = parts[3]
+func IngressDspData(ingressDspData string) map[string]string {
+	intToHex, _ := strconv.ParseInt("0x"+ingressDspData, 0, 64)
+	binaryString := fmt.Sprintf("%b", intToHex)
+	for len(binaryString) < 16 {
+		binaryString = "0" + binaryString
+	}
 
-// 	return callSetupDelayMap
-// }
+	ingressDspDataMap := make(map[string]string)
+	ingressDspDataMap["IDD_RFC2833_TX_enabled"] = binaryString[0:1]
+	ingressDspDataMap["IDD_RFC2833_RX_enabled"] = binaryString[1:2]
+	ingressDspDataMap["IDD_RFC2833_packets_TX"] = binaryString[2:3]
+	ingressDspDataMap["IDD_RFC2833_packets_RX"] = binaryString[3:4]
+	ingressDspDataMap["IDD_OOB_messaging_enabled"] = binaryString[4:5]
+	ingressDspDataMap["IDD_OOB_packets_TX"] = binaryString[5:6]
+	ingressDspDataMap["IDD_OOB_packets_RX"] = binaryString[6:7]
+	ingressDspDataMap["IDD_DTMF_tone_det_enabled"] = binaryString[7:8]
+	ingressDspDataMap["IDD_DTMF_remove_enabled"] = binaryString[8:9]
+	ingressDspDataMap["IDD_DTMF_digits_detected"] = binaryString[9:10]
+	ingressDspDataMap["IDD_SIDs_Pkts_TX"] = binaryString[10:11]
+	ingressDspDataMap["IDD_SIDs_Pkts_RX"] = binaryString[11:12]
+	ingressDspDataMap["IDD_ECM_used"] = binaryString[12:13]
+
+	return ingressDspDataMap
+}
+
+func EgressDspData(egressDspData string) map[string]string {
+	intToHex, _ := strconv.ParseInt("0x"+egressDspData, 0, 64)
+	binaryString := fmt.Sprintf("%b", intToHex)
+	for len(binaryString) < 16 {
+		binaryString = "0" + binaryString
+	}
+
+	egressDspDataMap := make(map[string]string)
+	egressDspDataMap["EDD_RFC2833_TX_enabled"] = binaryString[0:1]
+	egressDspDataMap["EDD_RFC2833_RX_enabled"] = binaryString[1:2]
+	egressDspDataMap["EDD_RFC2833_packets_TX"] = binaryString[2:3]
+	egressDspDataMap["EDD_RFC2833_packets_RX"] = binaryString[3:4]
+	egressDspDataMap["EDD_OOB_messaging_enabled"] = binaryString[4:5]
+	egressDspDataMap["EDD_OOB_packets_TX"] = binaryString[5:6]
+	egressDspDataMap["EDD_OOB_packets_RX"] = binaryString[6:7]
+	egressDspDataMap["EDD_DTMF_tone_det_enabled"] = binaryString[7:8]
+	egressDspDataMap["EDD_DTMF_remove_enabled"] = binaryString[8:9]
+	egressDspDataMap["EDD_DTMF_digits_detected"] = binaryString[9:10]
+	egressDspDataMap["EDD_SIDs_Pkts_TX"] = binaryString[10:11]
+	egressDspDataMap["EDD_SIDs_Pkts_RX"] = binaryString[11:12]
+	egressDspDataMap["EDD_ECM_used"] = binaryString[12:13]
+
+	return egressDspDataMap
+}

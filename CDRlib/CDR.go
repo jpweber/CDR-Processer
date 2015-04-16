@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-13 19:34:44
+* @Last Modified time: 2015-04-16 10:38:37
  */
 
 package CDR
@@ -100,6 +100,20 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 	if cdrMap["Call_Setup_Delay"] != "" {
 		callSetupDelaySfs := CDRSubfields.CallSetupDelay(cdrMap["Call_Setup_Delay"])
 		for key, value := range callSetupDelaySfs {
+			cdrMap[key] = value
+		}
+	}
+
+	if cdrMap["Ingress_DSP_Data"] != "" {
+		ingressDspDataSfs := CDRSubfields.IngressDspData(cdrMap["Ingress_DSP_Data"])
+		for key, value := range ingressDspDataSfs {
+			cdrMap[key] = value
+		}
+	}
+
+	if cdrMap["Egress_DSP_Data"] != "" {
+		egressDspDataSfs := CDRSubfields.EgressDspData(cdrMap["Egress_DSP_Data"])
+		for key, value := range egressDspDataSfs {
 			cdrMap[key] = value
 		}
 	}
