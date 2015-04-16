@@ -55,7 +55,6 @@ func EgressCirIPEndPoint(egressCirIPEndPoint string) map[string]string {
 //SIP,b10e953ce9b911e298a600151737326e@204.124.15.58,<sip:7875315936@204.124.15.58:5065;user=phone>;tag=177540785-3792812521-352364184-1848784663,<sip:19106333559@76.10.220.14;user=phone>;tag=gK00f27408,0,,,,sip:19106333559@76.10.220.14;user=phone,,,,sip:7875315936@204.124.15.58:5065;user=phone,sip:19106333559@76.10.220.14:5060,,,,1,BYE,16,0,0,,0,0,,,,,,,,1,0,0,0,,
 func IngressProtocolVariantSpecData(ingressProtocolVariantSpecData string) map[string]string {
 	parts := strings.Split(ingressProtocolVariantSpecData, ",")
-	fmt.Println(len(parts))
 	ingressProtocolVariantSpecDataMap := make(map[string]string)
 	subfields := []string{
 		"IPVSD_Protocol_Variant",
