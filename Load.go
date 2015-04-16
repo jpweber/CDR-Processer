@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-07 14:03:51
+* @Last Modified time: 2015-04-16 11:20:56
  */
 
 //parses CDR file in to key value map and then publishes to rabbitMQ
