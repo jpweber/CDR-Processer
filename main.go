@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-16 17:21:17
+* @Last Modified time: 2015-04-16 17:39:23
  */
 
 //parses CDR file in to key value map and then publishes to rabbitMQ
@@ -22,7 +22,8 @@ func main() {
 
 	var buildNumber string
 	const AppVersion = "0.1.0"
-	versionPtr := flag.Bool("v", false, "a bool")
+	versionPtr := flag.Bool("v", false, "Show Version Number")
+	cdrFileName := flag.String("f", "", "Single file you which to process")
 	// Once all flags are declared, call `flag.Parse()`
 	// to execute the command-line parsing.
 	flag.Parse()
@@ -31,9 +32,20 @@ func main() {
 		os.Exit(0)
 	}
 
+	var fileToOpen string
+	if *cdrFileName == "" {
+		// csvFile, err := os.Open("./1000309.ACT")
+		// csvFile, err := os.Open("./data.csv")
+		fileToOpen = "./ACT/CHGOKBSBC01.20150301000000.100442B.ACT"
+	} else {
+		fileToOpen = *cdrFileName
+	}
+
+	//!debug
+	fmt.Println(fileToOpen)
 	// csvFile, err := os.Open("./1000309.ACT")
 	// csvFile, err := os.Open("./data.csv")
-	csvFile, err := os.Open("./ACT/CHGOKBSBC01.20150301000000.100442B.ACT")
+	csvFile, err := os.Open(fileToOpen)
 
 	if err != nil {
 		fmt.Println(err)
