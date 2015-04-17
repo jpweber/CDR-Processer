@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-17 12:01:30
+* @Last Modified time: 2015-04-17 12:22:01
  */
 
 package CDR
@@ -45,9 +45,9 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 	//0x0001A09A00720365
 	if cdrMap["Accounting_ID"] != "" {
 		accountingIdSfs := CDRSubfields.AccountingID(cdrMap["Accounting_ID"])
-		cdrMap["Shelf"] = accountingIdSfs["shelf"]
-		cdrMap["Boot_Count"] = accountingIdSfs["bootCount"]
-		cdrMap["Call_ID"] = accountingIdSfs["callId"]
+		for key, value := range accountingIdSfs {
+			cdrMap[key] = value
+		}
 	}
 
 	//CMHGSX3:03-CMHGSX3-NTAND-ISUP01

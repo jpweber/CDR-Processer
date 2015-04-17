@@ -13,9 +13,9 @@ func AccountingID(accountingid string) map[string]string {
 	callId := accountingid[10:16]
 
 	accountingidMap := make(map[string]string)
-	accountingidMap["shelf"] = fmt.Sprintf("%d", shelf)
-	accountingidMap["bootCount"] = fmt.Sprintf("%d", bootCount)
-	accountingidMap["callId"] = callId
+	accountingidMap["AI_Shelf"] = fmt.Sprintf("%d", shelf)
+	accountingidMap["AI_Boot_Count"] = fmt.Sprintf("%d", bootCount)
+	accountingidMap["AI_Call_Id"] = callId
 
 	//!debug
 	//fmt.Println(accountingidMap)
