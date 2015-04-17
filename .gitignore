@@ -1,6 +1,4 @@
 
 *.ACT
-Stop.csv
-data.csv
-Queuelib
+*.csv
 
