@@ -2,10 +2,11 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-16 17:39:23
+* @Last Modified time: 2015-04-16 17:43:21
  */
 
-//parses CDR file in to key value map and then publishes to rabbitMQ
+//parses CDR file in to key value map and then does something with it
+// maybe database maybe not we'll see.
 
 package main
 

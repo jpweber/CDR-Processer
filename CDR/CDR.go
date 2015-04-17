@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-16 12:15:46
+* @Last Modified time: 2015-04-17 12:01:30
  */
 
 package CDR
@@ -237,8 +237,8 @@ func CdrStopKeys() []string {
 		"Outgoing_Calling_Party_Numbering_Plan",
 		"Calling_Party_Business_Group_ID",
 		"Called_Party_Business_Group_ID",
-		"Calling_Party_Public_Presence_Directory_Number",
-		"Time_Last_Call_Routing_Attempt",
+		"CgP_Public_Presence_Directory_Number",
+		"Time_Elapsed_Setup_Msg_RX_Last_Call_Rte_Att",
 		"Billing_Number_NOA",
 		"Incoming_Calling_Number_NOA",
 		"Egress_Trunk_Member_Number",
