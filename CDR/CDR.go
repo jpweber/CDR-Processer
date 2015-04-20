@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-17 12:22:01
+* @Last Modified time: 2015-04-20 00:12:04
  */
 
 package CDR
@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"ko/CDRSubfields"
 	"os"
+	"strings"
 )
 
 // Cdrcollection holds too slices containing Stop records and attempt records
@@ -28,12 +29,45 @@ func FillCDRMap(keys []string, values []string) map[string]string {
 
 	cdrMap := make(map[string]string)
 
-	for i, value := range values {
-		// fmt.Println(keys[i], value, "\n")
-		cdrMap[keys[i]] = value
+	// for i, value := range values {
+	// 	fmt.Println(keys[i], value, "\n")
+	// 	cdrMap[keys[i]] = value
+	// }
+
+	fmt.Println(len(values))
+	for i, key := range keys {
+		fmt.Println(key, "\n")
+		fmt.Println(i)
+		if i < len(values) {
+			cdrMap[key] = values[i]
+		} else {
+			// if we don't have all the values to fill the map
+			// fill with blanks so we don't check beyond bounds of values array
+			cdrMap[key] = ""
+		}
 	}
 
 	return cdrMap
+}
+
+func KeysString(m map[string]string) string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+		fmt.Println(k)
+	}
+	fmt.Println(len(keys))
+	return strings.Join(keys, ", ")
+}
+
+func ValuesString(m map[string]string) string {
+	values := make([]string, 0, len(m))
+	for _, v := range m {
+		values = append(values, v)
+	}
+	// fmt.Println(len(values))
+	//      bullshit extra blank at start
+	return "'','','" + strings.Join(values, "', '") + "' "
 }
 
 func BreakOutSubFields(cdrMap map[string]string) map[string]string {
@@ -48,6 +82,8 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		for key, value := range accountingIdSfs {
 			cdrMap[key] = value
 		}
+	} else {
+		fmt.Println("Accounting ID not found")
 	}
 
 	//CMHGSX3:03-CMHGSX3-NTAND-ISUP01
@@ -55,18 +91,24 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		routeSelectedSfs := CDRSubfields.RouteSelected(cdrMap["Route_Selected"])
 		cdrMap["RS_Gateway"] = routeSelectedSfs["RS_Gateway"]
 		cdrMap["RS_TrunkGroup"] = routeSelectedSfs["RS_Trunkgroup"]
+	} else {
+		fmt.Println("Accounting ID not found")
 	}
 
 	if cdrMap["Ingress_IP_Circuit_End_Point"] != "" {
 		ingressIpSfs := CDRSubfields.IngressCirIPEndPoint(cdrMap["Ingress_IP_Circuit_End_Point"])
 		cdrMap["IIPE_local"] = ingressIpSfs["ingressIPendpoint_local"]
 		cdrMap["IIPE_remote"] = ingressIpSfs["ingressIPendpoint_remote"]
+	} else {
+		fmt.Println("Accounting ID not found")
 	}
 
 	if cdrMap["Egress_IP_Circuit_End_Point"] != "" {
 		egressIpSfs := CDRSubfields.EgressCirIPEndPoint(cdrMap["Egress_IP_Circuit_End_Point"])
 		cdrMap["EIPE_local"] = egressIpSfs["egressIPendpoint_local"]
 		cdrMap["EIPE_remote"] = egressIpSfs["egressIPendpoint_remote"]
+	} else {
+		fmt.Println("Accounting ID not found")
 	}
 
 	if cdrMap["Ingress_Protocol_Variant_Spec_Data"] != "" {
@@ -74,13 +116,17 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		for key, value := range ingressProtVariSpecDataSfs {
 			cdrMap[key] = value
 		}
+	} else {
+		fmt.Println("Accounting ID not found")
 	}
 
 	if cdrMap["Egress_Protocol_Variant_Spec_Data"] != "" {
-		egressProtVariSpecDataSfs := CDRSubfields.IngressProtocolVariantSpecData(cdrMap["Egress_Protocol_Variant_Spec_Data"])
+		egressProtVariSpecDataSfs := CDRSubfields.EgressProtocolVariantSpecData(cdrMap["Egress_Protocol_Variant_Spec_Data"])
 		for key, value := range egressProtVariSpecDataSfs {
 			cdrMap[key] = value
 		}
+	} else {
+		fmt.Println("Accounting ID not found")
 	}
 
 	if cdrMap["Ingress_Codec_Type"] != "" {
@@ -88,6 +134,8 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		for key, value := range ingressCodecTypeSfs {
 			cdrMap[key] = value
 		}
+	} else {
+		fmt.Println("Accounting ID not found")
 	}
 
 	if cdrMap["Egress_Codec_Type"] != "" {
@@ -95,6 +143,8 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		for key, value := range egressCodecTypeSfs {
 			cdrMap[key] = value
 		}
+	} else {
+		fmt.Println("Accounting ID not found")
 	}
 
 	if cdrMap["Call_Setup_Delay"] != "" {
@@ -102,6 +152,8 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		for key, value := range callSetupDelaySfs {
 			cdrMap[key] = value
 		}
+	} else {
+		fmt.Println("Accounting ID not found")
 	}
 
 	if cdrMap["Ingress_DSP_Data"] != "" {
@@ -109,6 +161,8 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		for key, value := range ingressDspDataSfs {
 			cdrMap[key] = value
 		}
+	} else {
+		fmt.Println("Accounting ID not found")
 	}
 
 	if cdrMap["Egress_DSP_Data"] != "" {
@@ -116,6 +170,8 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		for key, value := range egressDspDataSfs {
 			cdrMap[key] = value
 		}
+	} else {
+		fmt.Println("Accounting ID not found")
 	}
 
 	return cdrMap
@@ -508,8 +564,8 @@ func CdrAttemptKeys() []string {
 		"Egress_External_Accounting_Data",
 		"Egress_RTP_Packetization_Time",
 		"Call_Supervision_Type",
-		"Ingress_SIP_Refer/Replaces_Feature_Spec_Data",
-		"Egress_SIP_Refer/Replaces_Feature_Spec_Data",
+		"Ingress_SIP_Refer_Replaces_Feature_Spec_Data",
+		"Egress_SIP_Refer_Replaces_Feature_Spec_Data",
 		"Network_Transfer_Feature_Spec_Data",
 		"Call_Condition",
 		"Toll_Indicator",
@@ -521,7 +577,7 @@ func CdrAttemptKeys() []string {
 		"Final_ATT_Indicator",
 		"Originating_Trunk_Type",
 		"Terminating_Trunk_Type",
-		"Remote_GSX/NBS_Billing_Indicator",
+		"Remote_GSX_NBS_Billing_Indicator",
 		"Extra_Disconnect_Reason",
 		"VPN_Calling_Private_Presence_Number",
 		"VPN_Calling_Public_Presence_Number",
@@ -693,8 +749,8 @@ func CdrStartKeys() []string {
 		"Ingress_External_Accounting_Data",
 		"Egress_External_Accounting_Data",
 		"Call_Supervision_Type",
-		"Ingress_SIP_Refer/Replaces_Feature_Spec_Data",
-		"Egress_SIP_Refer/Replaces_Feature_Spec_Data",
+		"Ingress_SIP_Refer_Replaces_Feature_Spec_Data",
+		"Egress_SIP_Refer_Replaces_Feature_Spec_Data",
 		"Network_Transfer_Feature_Spec_Data",
 		"Call_Condition",
 		"Toll_Indicator",
@@ -721,7 +777,7 @@ func CdrStartKeys() []string {
 		"Video_Codec_Data",
 		"SVS_Customer",
 		"SVS_Vendor",
-		"Remote_GSX/NBS_Billing_Indicator",
+		"Remote_GSX_NBS_Billing_Indicator",
 		"Call_To_Test_PSX",
 		"PSX_Overlap_Route_Requests",
 		"Call_Setup_Delay",
