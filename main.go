@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-16 17:43:21
+* @Last Modified time: 2015-04-20 00:28:50
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -11,11 +11,15 @@
 package main
 
 import (
+	// "bytes"
+	"database/sql"
 	"encoding/csv"
 	"flag"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"ko/CDR"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -72,11 +76,13 @@ func main() {
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(3) //We need to wait for Stops, attempts and starts to finish on this wait group
+	wg.Add(1) //We need to wait for Stops, attempts and starts to finish on this wait group
 
+	//setup our containers for CDR data
+	stopRecords := make([]map[string]string, len(cdrCollection.Stops))
 	// create stop record map (dictionary to me)
 	go func(wg *sync.WaitGroup) {
-		stopRecords := make([]map[string]string, len(cdrCollection.Stops))
+		// stopRecords := make([]map[string]string, len(cdrCollection.Stops))
 		for i, value := range cdrCollection.Stops {
 			cdrStopData := CDR.FillCDRMap(CDR.CdrStopKeys(), value) //normal
 			//if we want to break out subfields
@@ -88,31 +94,91 @@ func main() {
 	}(&wg)
 
 	// create attempt record map (dictionary to me)
-	go func(wg *sync.WaitGroup) {
-		attemptRecords := make([]map[string]string, len(cdrCollection.Attempts))
-		for i, value := range cdrCollection.Attempts {
-			cdrAttemptData := CDR.FillCDRMap(CDR.CdrAttemptKeys(), value)
-			attemptRecords[i] = cdrAttemptData
-		}
-		wg.Done()
-		fmt.Println("Attempt Done")
-	}(&wg)
+	// go func(wg *sync.WaitGroup) {
+	// 	attemptRecords := make([]map[string]string, len(cdrCollection.Attempts))
+	// 	for i, value := range cdrCollection.Attempts {
+	// 		cdrAttemptData := CDR.FillCDRMap(CDR.CdrAttemptKeys(), value)
+	// 		attemptRecords[i] = cdrAttemptData
+	// 	}
+	// 	wg.Done()
+	// 	fmt.Println("Attempt Done")
+	// }(&wg)
 
 	// create start record map (dictionary to me)
-	go func(wg *sync.WaitGroup) {
-		startRecords := make([]map[string]string, len(cdrCollection.Starts))
-		for i, value := range cdrCollection.Starts {
-			cdrStartData := CDR.FillCDRMap(CDR.CdrStartKeys(), value)
-			//if we want to break out subfields
-			cdrStartData = CDR.BreakOutSubFields(cdrStartData)
-			startRecords[i] = cdrStartData
-		}
-		wg.Done()
-		fmt.Println("Start Done")
-	}(&wg)
+	// go func(wg *sync.WaitGroup) {
+	// 	startRecords := make([]map[string]string, len(cdrCollection.Starts))
+	// 	for i, value := range cdrCollection.Starts {
+	// 		cdrStartData := CDR.FillCDRMap(CDR.CdrStartKeys(), value)
+	// 		//if we want to break out subfields
+	// 		cdrStartData = CDR.BreakOutSubFields(cdrStartData)
+	// 		startRecords[i] = cdrStartData
+	// 	}
+	// 	wg.Done()
+	// 	fmt.Println("Start Done")
+	// }(&wg)
 
 	wg.Wait() //Wait for the concurrent routines to call 'done'
 	fmt.Println("Done parsing file")
-	// fmt.Println(stopRecords)
+	// fmt.Println(stopRecords[0])
+	fmt.Println(len(stopRecords[0]))
 	// fmt.Println(startRecords)
+
+	// stopsColumns := CDR.KeysString(stopRecords[0])
+	// fmt.Println(stopsColumns)
+	// stopsValues := CDR.ValuesString(stopRecords[0])
+	// fmt.Println(stopsValues)
+	// start db stuff
+	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/test")
+	if err != nil {
+		// log.Fatal(err)
+		fmt.Println(err)
+	}
+
+	//test our connection to make sure the DB is reachable.
+	err = db.Ping()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//Begin inserting CDR Data
+	//create strings for column names to insert
+	//and string for all the values
+	columns := make([]string, 0, len(stopRecords[0]))
+	stopsValues := make([]string, 0, len(stopRecords[0]))
+	placeHolders := make([]string, 0, len(stopRecords[0]))
+	for k, v := range stopRecords[0] {
+		columns = append(columns, k)
+		stopsValues = append(stopsValues, v)
+		placeHolders = append(placeHolders, "?")
+	}
+
+	columnsString := strings.Join(columns, ", ")
+	stopsValuesString := strings.Join(stopsValues, "', '")
+	placeHoldersString := strings.Join(placeHolders, ", ")
+
+	stmt, err := db.Prepare("INSERT INTO test.stops(" + columnsString + ") VALUES(" + placeHoldersString + ")")
+	if err != nil {
+		// log.Fatal(err)
+		fmt.Println("prepare error")
+		fmt.Println(err)
+	}
+	res, err := stmt.Exec(stopsValuesString)
+	if err != nil {
+		// log.Fatal(err)
+		fmt.Println(err)
+	}
+	lastId, err := res.LastInsertId()
+	if err != nil {
+		// log.Fatal(err)
+		fmt.Println(err)
+	}
+	rowCnt, err := res.RowsAffected()
+	if err != nil {
+		// log.Fatal(err)
+		fmt.Println(err)
+	}
+	// log.Printf("ID = %d, affected = %d\n", lastId, rowCnt)
+	fmt.Printf("ID = %d, affected = %d\n", lastId, rowCnt)
+	defer db.Close()
+
 }
