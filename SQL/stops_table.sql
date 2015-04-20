@@ -1,5 +1,6 @@
 CREATE TABLE `stops` (
   `row_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `Record_Type` varchar(12) Not NULL,
   `Gateway_Name` varchar(27) NOT NULL DEFAULT '0',
   `Accounting_ID` varchar(20) NOT NULL,
   `AI_Shelf` int(16) NOT NULL,
@@ -298,6 +299,7 @@ CREATE TABLE `stops` (
   `Modem_Tone_Type` smallint(1) unsigned NOT NULL DEFAULT '0',
   `Modem_Tone_Signal_Level` smallint(1) unsigned NOT NULL DEFAULT '0',
   `Video_Codec_Data`      varchar(512) DEFAULT NULL,
+  `Video_Codec_Statistics`      varchar(512) DEFAULT NULL,
   `SVS_Customer`  decimal(4,0) unsigned DEFAULT NULL,
   `SVS_Vendor` decimal(1,0) unsigned DEFAULT NULL ,
   `Call_To_Test_PSX` tinyint(1) DEFAULT NULL,
