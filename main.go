@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-20 20:40:29
+* @Last Modified time: 2015-04-20 21:11:21
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -22,6 +22,53 @@ import (
 	"strings"
 	"sync"
 )
+
+func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, recordType string) {
+	for _, record := range records {
+		//create strings for column names to insert
+		//and string for all the values
+		columns := make([]string, 0, len(record))
+		stopsArgs := make([]interface{}, 0, len(record))
+		placeHolders := make([]string, 0, len(record))
+		for k, v := range record {
+			columns = append(columns, k)
+			stopsArgs = append(stopsArgs, v)
+			placeHolders = append(placeHolders, "?")
+		}
+
+		columnsString := strings.Join(columns, ", ")
+		// fmt.Println(stopsArgs)
+		placeHoldersString := strings.Join(placeHolders, ", ")
+
+		stmt, err := db.Prepare("INSERT INTO test." + recordType + "(" + columnsString + ") VALUES(" + placeHoldersString + ")")
+		if err != nil {
+			// log.Fatal(err)
+			fmt.Println("prepare error")
+			fmt.Println(err)
+		}
+		res, err := stmt.Exec(stopsArgs...)
+		if err != nil {
+			// log.Fatal(err)
+			fmt.Println("Exec error")
+			fmt.Println(err)
+		}
+		//debug info
+		_, err = res.LastInsertId()
+		if err != nil {
+			// log.Fatal(err)
+			fmt.Println(err)
+		}
+		_, err = res.RowsAffected()
+		if err != nil {
+			// log.Fatal(err)
+			fmt.Println(err)
+		}
+		// log.Printf("ID = %d, affected = %d\n", lastId, rowCnt)
+		// fmt.Printf("affected = %d\n", rowCnt)
+
+	}
+	wg.Done()
+}
 
 func main() {
 
@@ -76,7 +123,7 @@ func main() {
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(1) //We need to wait for Stops, attempts and starts to finish on this wait group
+	wg.Add(2) //We need to wait for Stops, attempts and starts to finish on this wait group
 
 	//setup our containers for CDR data
 	stopRecords := make([]map[string]string, len(cdrCollection.Stops))
@@ -94,15 +141,15 @@ func main() {
 	}(&wg)
 
 	// create attempt record map (dictionary to me)
-	// go func(wg *sync.WaitGroup) {
-	// 	attemptRecords := make([]map[string]string, len(cdrCollection.Attempts))
-	// 	for i, value := range cdrCollection.Attempts {
-	// 		cdrAttemptData := CDR.FillCDRMap(CDR.CdrAttemptKeys(), value)
-	// 		attemptRecords[i] = cdrAttemptData
-	// 	}
-	// 	wg.Done()
-	// 	fmt.Println("Attempt Done")
-	// }(&wg)
+	go func(wg *sync.WaitGroup) {
+		attemptRecords := make([]map[string]string, len(cdrCollection.Attempts))
+		for i, value := range cdrCollection.Attempts {
+			cdrAttemptData := CDR.FillCDRMap(CDR.CdrAttemptKeys(), value)
+			attemptRecords[i] = cdrAttemptData
+		}
+		wg.Done()
+		fmt.Println("Attempt Done")
+	}(&wg)
 
 	// create start record map (dictionary to me)
 	// go func(wg *sync.WaitGroup) {
@@ -136,46 +183,11 @@ func main() {
 	}
 
 	//Begin inserting CDR Data
-	//create strings for column names to insert
-	//and string for all the values
-	columns := make([]string, 0, len(stopRecords[0]))
-	stopsArgs := make([]interface{}, 0, len(stopRecords[0]))
-	placeHolders := make([]string, 0, len(stopRecords[0]))
-	for k, v := range stopRecords[0] {
-		columns = append(columns, k)
-		stopsArgs = append(stopsArgs, v)
-		placeHolders = append(placeHolders, "?")
-	}
-
-	columnsString := strings.Join(columns, ", ")
-	// fmt.Println(stopsArgs)
-	placeHoldersString := strings.Join(placeHolders, ", ")
-
-	stmt, err := db.Prepare("INSERT INTO test.stops(" + columnsString + ") VALUES(" + placeHoldersString + ")")
-	if err != nil {
-		// log.Fatal(err)
-		fmt.Println("prepare error")
-		fmt.Println(err)
-	}
-	res, err := stmt.Exec(stopsArgs...)
-	if err != nil {
-		// log.Fatal(err)
-		fmt.Println("Exec error")
-		fmt.Println(err)
-	}
-	//debug info
-	_, err = res.LastInsertId()
-	if err != nil {
-		// log.Fatal(err)
-		fmt.Println(err)
-	}
-	rowCnt, err := res.RowsAffected()
-	if err != nil {
-		// log.Fatal(err)
-		fmt.Println(err)
-	}
-	// log.Printf("ID = %d, affected = %d\n", lastId, rowCnt)
-	fmt.Printf("affected = %d\n", rowCnt)
+	wg.Add(1) //will become three
+	go saveRecord(&wg, *db, stopRecords, "stops")
+	// go saveRecord(&wg, *db, attemptRecords, "attempts")
+	// go saveRecord(&wg, *db, startRecords, "starts")
+	wg.Wait() //Wait for the concurrent routines to call 'done'
 	defer db.Close()
 
 }
