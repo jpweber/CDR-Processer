@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-20 00:12:04
+* @Last Modified time: 2015-04-20 20:42:49
  */
 
 package CDR
@@ -34,10 +34,7 @@ func FillCDRMap(keys []string, values []string) map[string]string {
 	// 	cdrMap[keys[i]] = value
 	// }
 
-	fmt.Println(len(values))
 	for i, key := range keys {
-		fmt.Println(key, "\n")
-		fmt.Println(i)
 		if i < len(values) {
 			cdrMap[key] = values[i]
 		} else {
@@ -406,7 +403,7 @@ func CdrStopKeys() []string {
 		"IP_Call_Limit_at_Egress_IPTG",
 		"IP_BW_Limit_at_Egress_IPTG",
 		"PSX_Name",
-		"Number_of_PSX_Tried",
+		"No_of_PSX_Tried",
 		"Ingress_Inbound_R_Factor",
 		"Egress_Inbound_R_Factor",
 		"Ingress_Outbound_R_Factor",
