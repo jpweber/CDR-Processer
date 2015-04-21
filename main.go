@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-20 00:28:50
+* @Last Modified time: 2015-04-20 20:40:29
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -120,13 +120,8 @@ func main() {
 	wg.Wait() //Wait for the concurrent routines to call 'done'
 	fmt.Println("Done parsing file")
 	// fmt.Println(stopRecords[0])
-	fmt.Println(len(stopRecords[0]))
 	// fmt.Println(startRecords)
 
-	// stopsColumns := CDR.KeysString(stopRecords[0])
-	// fmt.Println(stopsColumns)
-	// stopsValues := CDR.ValuesString(stopRecords[0])
-	// fmt.Println(stopsValues)
 	// start db stuff
 	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/test")
 	if err != nil {
@@ -144,16 +139,16 @@ func main() {
 	//create strings for column names to insert
 	//and string for all the values
 	columns := make([]string, 0, len(stopRecords[0]))
-	stopsValues := make([]string, 0, len(stopRecords[0]))
+	stopsArgs := make([]interface{}, 0, len(stopRecords[0]))
 	placeHolders := make([]string, 0, len(stopRecords[0]))
 	for k, v := range stopRecords[0] {
 		columns = append(columns, k)
-		stopsValues = append(stopsValues, v)
+		stopsArgs = append(stopsArgs, v)
 		placeHolders = append(placeHolders, "?")
 	}
 
 	columnsString := strings.Join(columns, ", ")
-	stopsValuesString := strings.Join(stopsValues, "', '")
+	// fmt.Println(stopsArgs)
 	placeHoldersString := strings.Join(placeHolders, ", ")
 
 	stmt, err := db.Prepare("INSERT INTO test.stops(" + columnsString + ") VALUES(" + placeHoldersString + ")")
@@ -162,12 +157,14 @@ func main() {
 		fmt.Println("prepare error")
 		fmt.Println(err)
 	}
-	res, err := stmt.Exec(stopsValuesString)
+	res, err := stmt.Exec(stopsArgs...)
 	if err != nil {
 		// log.Fatal(err)
+		fmt.Println("Exec error")
 		fmt.Println(err)
 	}
-	lastId, err := res.LastInsertId()
+	//debug info
+	_, err = res.LastInsertId()
 	if err != nil {
 		// log.Fatal(err)
 		fmt.Println(err)
@@ -178,7 +175,7 @@ func main() {
 		fmt.Println(err)
 	}
 	// log.Printf("ID = %d, affected = %d\n", lastId, rowCnt)
-	fmt.Printf("ID = %d, affected = %d\n", lastId, rowCnt)
+	fmt.Printf("affected = %d\n", rowCnt)
 	defer db.Close()
 
 }
