@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-20 20:42:49
+* @Last Modified time: 2015-04-20 21:22:40
  */
 
 package CDR
@@ -548,7 +548,7 @@ func CdrAttemptKeys() []string {
 		"USI_User_Information_Layer_1",
 		"Unrecognized_Raw_ISUP_CgP_Category",
 		"Egress_RLT_Feature_Spec_Data",
-		"two_B-Chan_Transfer_Feature_Spec_Data",
+		"two_B_Chan_Transfer_Feature_Spec_Data",
 		"Calling_Party_Business_Unit",
 		"Called_Party_Business_Unit",
 		"Redirection_Feature_Spec_Data",

@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-20 21:11:21
+* @Last Modified time: 2015-04-20 23:40:23
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -37,7 +37,7 @@ func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, reco
 		}
 
 		columnsString := strings.Join(columns, ", ")
-		// fmt.Println(stopsArgs)
+		// fmt.Println(columnsString)
 		placeHoldersString := strings.Join(placeHolders, ", ")
 
 		stmt, err := db.Prepare("INSERT INTO test." + recordType + "(" + columnsString + ") VALUES(" + placeHoldersString + ")")
@@ -88,7 +88,7 @@ func main() {
 	if *cdrFileName == "" {
 		// csvFile, err := os.Open("./1000309.ACT")
 		// csvFile, err := os.Open("./data.csv")
-		fileToOpen = "./ACT/CHGOKBSBC01.20150301000000.100442B.ACT"
+		fileToOpen = "./ACT/CHGOKBSBC01.20150311194000.100504B.ACT.proc"
 	} else {
 		fileToOpen = *cdrFileName
 	}
@@ -127,6 +127,8 @@ func main() {
 
 	//setup our containers for CDR data
 	stopRecords := make([]map[string]string, len(cdrCollection.Stops))
+	attemptRecords := make([]map[string]string, len(cdrCollection.Attempts))
+
 	// create stop record map (dictionary to me)
 	go func(wg *sync.WaitGroup) {
 		// stopRecords := make([]map[string]string, len(cdrCollection.Stops))
@@ -142,7 +144,6 @@ func main() {
 
 	// create attempt record map (dictionary to me)
 	go func(wg *sync.WaitGroup) {
-		attemptRecords := make([]map[string]string, len(cdrCollection.Attempts))
 		for i, value := range cdrCollection.Attempts {
 			cdrAttemptData := CDR.FillCDRMap(CDR.CdrAttemptKeys(), value)
 			attemptRecords[i] = cdrAttemptData
@@ -183,9 +184,9 @@ func main() {
 	}
 
 	//Begin inserting CDR Data
-	wg.Add(1) //will become three
+	wg.Add(2) //will become three
 	go saveRecord(&wg, *db, stopRecords, "stops")
-	// go saveRecord(&wg, *db, attemptRecords, "attempts")
+	go saveRecord(&wg, *db, attemptRecords, "attempts")
 	// go saveRecord(&wg, *db, startRecords, "starts")
 	wg.Wait() //Wait for the concurrent routines to call 'done'
 	defer db.Close()
