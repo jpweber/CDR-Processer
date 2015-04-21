@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-21 16:26:39
+* @Last Modified time: 2015-04-21 16:53:28
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -147,6 +147,7 @@ func main() {
 	go func(wg *sync.WaitGroup) {
 		for i, value := range cdrCollection.Attempts {
 			cdrAttemptData := CDR.FillCDRMap(CDR.CdrAttemptKeys(), value)
+			cdrAttemptData = CDR.BreakOutSubFields(cdrAttemptData)
 			attemptRecords[i] = cdrAttemptData
 		}
 		wg.Done()
@@ -184,9 +185,9 @@ func main() {
 	}
 
 	//Begin inserting CDR Data
-	wg.Add(1) //will become three
-	// go saveRecord(&wg, *db, stopRecords, "stops")
-	// go saveRecord(&wg, *db, attemptRecords, "attempts")
+	wg.Add(3) //will become three
+	go saveRecord(&wg, *db, stopRecords, "stops")
+	go saveRecord(&wg, *db, attemptRecords, "attempts")
 	go saveRecord(&wg, *db, startRecords, "starts")
 	wg.Wait() //Wait for the concurrent routines to call 'done'
 	defer db.Close()
