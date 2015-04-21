@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-20 21:22:40
+* @Last Modified time: 2015-04-21 16:34:04
  */
 
 package CDR
@@ -718,7 +718,7 @@ func CdrStartKeys() []string {
 		"Calling_Party_Business_Group_ID",
 		"Called_Party_Business_Group_ID",
 		"CgP_Public_Presence_Directory_Number",
-		"Time_Elapsed_Setup_Msg_RX->Last_Call_Rte_Att",
+		"Time_Elapsed_Setup_Msg_RX_Last_Call_Rte_Att",
 		"Billing_Number_NOA",
 		"Incoming_Calling_Number_NOA",
 		"Egress_Trunk_Member_Number",
@@ -734,7 +734,7 @@ func CdrStartKeys() []string {
 		"USI_User_Information_Layer_1",
 		"Unrecognized_Raw_ISUP_CgP_Category",
 		"Egress_RLT_Feature_Spec_Data",
-		"two_B-Chan_Transfer_Feature_Spec_Data",
+		"two_B_Chan_Transfer_Feature_Spec_Data",
 		"Calling_Party_Business_Unit",
 		"Called_Party_Business_Unit",
 		"Redirection_Feature_Spec_Data",
@@ -792,7 +792,7 @@ func CdrStartKeys() []string {
 		"Suppress_ONI",
 		"Global_Charge_Reference",
 		"IP_Call_Limit_at_Ingress_SIP_Peer ",
-		"IP Call_Limit_at_Ingress_IPTG ",
+		"IP_Call_Limit_at_Ingress_IPTG ",
 		"IP_BW_Limit_at_Ingress_IPTG ",
 		"IP_Call_Limit_at_Egress_SIP_Peer ",
 		"IP_Call_Limit_at_Egress_IPTG ",

@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-20 23:40:23
+* @Last Modified time: 2015-04-21 16:26:39
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -88,7 +88,7 @@ func main() {
 	if *cdrFileName == "" {
 		// csvFile, err := os.Open("./1000309.ACT")
 		// csvFile, err := os.Open("./data.csv")
-		fileToOpen = "./ACT/CHGOKBSBC01.20150311194000.100504B.ACT.proc"
+		fileToOpen = "./ACT/CHGOKBSBC01.20150311235000.100507D.ACT.proc"
 	} else {
 		fileToOpen = *cdrFileName
 	}
@@ -123,12 +123,13 @@ func main() {
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(2) //We need to wait for Stops, attempts and starts to finish on this wait group
+	wg.Add(3) //We need to wait for Stops, attempts and starts to finish on this wait group
+	//If more go funcs are added the integer here needs increased to match
 
 	//setup our containers for CDR data
 	stopRecords := make([]map[string]string, len(cdrCollection.Stops))
 	attemptRecords := make([]map[string]string, len(cdrCollection.Attempts))
-
+	startRecords := make([]map[string]string, len(cdrCollection.Starts))
 	// create stop record map (dictionary to me)
 	go func(wg *sync.WaitGroup) {
 		// stopRecords := make([]map[string]string, len(cdrCollection.Stops))
@@ -153,17 +154,16 @@ func main() {
 	}(&wg)
 
 	// create start record map (dictionary to me)
-	// go func(wg *sync.WaitGroup) {
-	// 	startRecords := make([]map[string]string, len(cdrCollection.Starts))
-	// 	for i, value := range cdrCollection.Starts {
-	// 		cdrStartData := CDR.FillCDRMap(CDR.CdrStartKeys(), value)
-	// 		//if we want to break out subfields
-	// 		cdrStartData = CDR.BreakOutSubFields(cdrStartData)
-	// 		startRecords[i] = cdrStartData
-	// 	}
-	// 	wg.Done()
-	// 	fmt.Println("Start Done")
-	// }(&wg)
+	go func(wg *sync.WaitGroup) {
+		for i, value := range cdrCollection.Starts {
+			cdrStartData := CDR.FillCDRMap(CDR.CdrStartKeys(), value)
+			//if we want to break out subfields
+			cdrStartData = CDR.BreakOutSubFields(cdrStartData)
+			startRecords[i] = cdrStartData
+		}
+		wg.Done()
+		fmt.Println("Start Done")
+	}(&wg)
 
 	wg.Wait() //Wait for the concurrent routines to call 'done'
 	fmt.Println("Done parsing file")
@@ -184,10 +184,10 @@ func main() {
 	}
 
 	//Begin inserting CDR Data
-	wg.Add(2) //will become three
-	go saveRecord(&wg, *db, stopRecords, "stops")
-	go saveRecord(&wg, *db, attemptRecords, "attempts")
-	// go saveRecord(&wg, *db, startRecords, "starts")
+	wg.Add(1) //will become three
+	// go saveRecord(&wg, *db, stopRecords, "stops")
+	// go saveRecord(&wg, *db, attemptRecords, "attempts")
+	go saveRecord(&wg, *db, startRecords, "starts")
 	wg.Wait() //Wait for the concurrent routines to call 'done'
 	defer db.Close()
 
