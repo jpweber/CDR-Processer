@@ -3,5 +3,6 @@
     "DbHost" : "localhost",
     "DbPort" : 3306,
     "DbUser" : "root",
-    "DbPass" : "root"
+    "DbPass" : "root",
+    "DSN"   : "root:root@tcp(127.0.0.1:3306)/test"
 }

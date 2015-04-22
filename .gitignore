@@ -2,5 +2,5 @@
 *.ACT
 *.csv
 *.proc
-
+config.json
 main
