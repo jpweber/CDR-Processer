@@ -9,18 +9,22 @@ Currently only saving to MySQL other databases on the roadmap.
 Can be run as daemon or as command line tool. In daemon mode will process files from directory or specific location. As CLI tool can take filename as argument and will only process that file
 
 ## Instalation
-
+Thinking maybe just a simple make file or shell script. Ideally an ubuntu package as well
 
 ## Usage  
-
-### Example  
-
-## Documentation
+Can be ran as a command line tool to process a single file, or ran in a daemon mode from a startup script
 
 ### options
 -h = display helps  
 -v  = displays version  
 -f = path to file name to parse. Will only parse that file and exit. 
+
+### Example  
+Process a single file  
+`./main -f SFOSBC01.20150331235500.10066FE.ACT`
+
+## Documentation
+
 
 ### Logging examples
 

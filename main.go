@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-22 13:21:34
+* @Last Modified time: 2015-04-22 15:24:02
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -113,7 +113,7 @@ func main() {
 	var buildNumber string
 	const AppVersion = "0.1.0"
 	versionPtr := flag.Bool("v", false, "Show Version Number")
-	cdrFileName := flag.String("f", "", "Single file you which to process")
+	cdrFileName := flag.String("f", "", "Single file you wish to process")
 	// Once all flags are declared, call `flag.Parse()`
 	// to execute the command-line parsing.
 	flag.Parse()
@@ -134,12 +134,9 @@ func main() {
 	// var fileToOpen string
 	var files []string
 	if *cdrFileName != "" {
-		// csvFile, err := os.Open("./1000309.ACT")
-		// csvFile, err := os.Open("./data.csv")
-		// fileToOpen = *cdrFileName
+		fileToOpen := *cdrFileName
+		files = append(files, fileToOpen)
 	} else {
-		// fileToOpen = "./ACT/CHGOKBSBC01.20150311235000.100507D.ACT.proc"
-		// files = fileList("/Users/jpweber/Development/gotests/lib/src/ko/ACT")
 		files = fileList(configuration.FileDir)
 	}
 
@@ -160,17 +157,11 @@ func main() {
 
 	// I don't like this giant loop but its a simple way to start and test
 	for _, file := range files {
-		//!debug
-		// fmt.Println(fileToOpen)
-		// csvFile, err := os.Open("./1000309.ACT")
-		// csvFile, err := os.Open("./data.csv")
 		csvFile, err := os.Open("ACT/" + file)
 		if err != nil {
 			fmt.Println(err)
-
 		}
 
-		// reader := csv.NewReader(bytes.NewReader(csvFile))
 		reader := csv.NewReader(csvFile)
 		reader.FieldsPerRecord = -1
 		csvData, err := reader.ReadAll()
@@ -196,46 +187,23 @@ func main() {
 		stopRecords := make([]map[string]string, len(cdrCollection.Stops))
 		attemptRecords := make([]map[string]string, len(cdrCollection.Attempts))
 		startRecords := make([]map[string]string, len(cdrCollection.Starts))
-		// create stop record map (dictionary to me)
-		go func(wg *sync.WaitGroup) {
-			for i, value := range cdrCollection.Stops {
-				cdrStopData := CDR.FillCDRMap(CDR.CdrStopKeys(), value) //normal
-				cdrStopData = CDR.BreakOutSubFields(cdrStopData)
-				stopRecords[i] = cdrStopData
-			}
-			wg.Done()
-			fmt.Println("Stop Done")
-		}(&wg)
 
-		// create attempt record map (dictionary to me)
-		go func(wg *sync.WaitGroup) {
-			for i, value := range cdrCollection.Attempts {
-				cdrAttemptData := CDR.FillCDRMap(CDR.CdrAttemptKeys(), value)
-				cdrAttemptData = CDR.BreakOutSubFields(cdrAttemptData)
-				attemptRecords[i] = cdrAttemptData
-			}
-			wg.Done()
-			fmt.Println("Attempt Done")
-		}(&wg)
-
-		// create start record map (dictionary to me)
-		go func(wg *sync.WaitGroup) {
-			for i, value := range cdrCollection.Starts {
-				cdrStartData := CDR.FillCDRMap(CDR.CdrStartKeys(), value)
-				cdrStartData = CDR.BreakOutSubFields(cdrStartData)
-				startRecords[i] = cdrStartData
-			}
-			wg.Done()
-			fmt.Println("Start Done")
-		}(&wg)
+		//Populate the containers of CDR Data
+		go func() {
+			stopRecords = (CDR.CreateRecordMap(&wg, cdrCollection.Stops, "stops"))
+		}()
+		go func() {
+			attemptRecords = (CDR.CreateRecordMap(&wg, cdrCollection.Attempts, "attempts"))
+		}()
+		go func() {
+			startRecords = (CDR.CreateRecordMap(&wg, cdrCollection.Starts, "starts"))
+		}()
 
 		wg.Wait() //Wait for the concurrent routines to call 'done'
 		fmt.Println("Done parsing file")
-		// fmt.Println(stopRecords[0])
-		// fmt.Println(startRecords)
 
 		//Begin inserting CDR Data
-		wg.Add(3) //will become three
+		wg.Add(3)
 		go saveRecord(&wg, *db, stopRecords, "stops")
 		go saveRecord(&wg, *db, attemptRecords, "attempts")
 		go saveRecord(&wg, *db, startRecords, "starts")

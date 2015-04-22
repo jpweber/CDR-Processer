@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-21 20:41:27
+* @Last Modified time: 2015-04-22 15:24:48
  */
 
 package CDR
@@ -14,6 +14,7 @@ import (
 	"ko/CDRSubfields"
 	"os"
 	"strings"
+	"sync"
 )
 
 // Cdrcollection holds too slices containing Stop records and attempt records
@@ -21,6 +22,27 @@ type CdrCollection struct {
 	Stops    [][]string
 	Attempts [][]string
 	Starts   [][]string
+}
+
+//creates a complete record map
+func CreateRecordMap(wg *sync.WaitGroup, records [][]string, recordType string) []map[string]string {
+	recordMap := make([]map[string]string, len(records))
+	var cdrData map[string]string
+	for i, value := range records {
+		switch recordType {
+		case "attempts":
+			cdrData = FillCDRMap(CdrAttemptKeys(), value)
+		case "stops":
+			cdrData = FillCDRMap(CdrStopKeys(), value)
+		case "starts":
+			cdrData = FillCDRMap(CdrStartKeys(), value) //normal
+		}
+		cdrData = BreakOutSubFields(cdrData)
+		recordMap[i] = cdrData
+	}
+	wg.Done()
+	fmt.Println(recordType + "Done")
+	return recordMap
 }
 
 // FillCDRMap takes an array of cdr keys and and array of cdr values
