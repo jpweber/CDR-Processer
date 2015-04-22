@@ -304,7 +304,7 @@ CREATE TABLE `attempts` (
 `VBR_Common_Billing_Data` varchar(32) DEFAULT NULL COMMENT '191',
 `VBR_Route_Billing_Data` varchar(32) DEFAULT NULL COMMENT '192',
 PRIMARY KEY (`row_id`),
-  UNIQUE KEY `Accounting_ID` (`Accounting_ID`),
+  KEY `Accounting_ID` (`Accounting_ID`),
   KEY `Ingress_Trunk_Group_Name` (`Ingress_Trunk_Group_Name`),
   KEY `Called_Number` (`Called_Number`),
   KEY `Calling_Number` (`Calling_Number`),

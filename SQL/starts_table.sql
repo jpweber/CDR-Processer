@@ -283,7 +283,7 @@ CREATE TABLE `starts` (
 `Final_Route_Label` varchar(32) DEFAULT NULL COMMENT '189',
 `MTA_Information` varchar(32) DEFAULT NULL COMMENT '190',
 PRIMARY KEY (`row_id`),
-  UNIQUE KEY `Accounting_ID` (`Accounting_ID`),
+  KEY `Accounting_ID` (`Accounting_ID`),
   KEY `Ingress_Trunk_Group_Name` (`Ingress_Trunk_Group_Name`),
   KEY `Called_Number` (`Called_Number`),
   KEY `Calling_Number` (`Calling_Number`),
