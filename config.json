@@ -1,0 +1,7 @@
+{
+    "FileDir" : "/Users/jpweber/Development/gotests/lib/src/ko/ACT",
+    "DbHost" : "localhost",
+    "DbPort" : 3306,
+    "DbUser" : "root",
+    "DbPass" : "root"
+}
