@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-22 15:24:02
+* @Last Modified time: 2015-04-23 16:00:26
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -34,62 +34,86 @@ type Configuration struct {
 	DSN     string
 }
 
-func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, recordType string) {
+func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, recordType string, chunk *int) {
 
+	//!debug
+	fmt.Println("saving record")
+	//make a buffered channel to hold all the records
+	c := make(chan map[string]string, len(records)+1)
 	for _, record := range records {
-		//create strings for column names to insert
-		//and string for all the values
-		columns := make([]string, 0, len(record))
-		stopsArgs := make([]interface{}, 0, len(record))
-		placeHolders := make([]string, 0, len(record))
-		for k, v := range record {
-			columns = append(columns, k)
-			stopsArgs = append(stopsArgs, v)
-			placeHolders = append(placeHolders, "?")
+		// fill buffered channel with data
+		c <- record
+	}
+	close(c)
+
+	for {
+
+		tx, _ := db.Begin()
+
+		var record map[string]string
+		for i := 0; i < *chunk; i++ {
+			record = <-c
+
+			//if the chanel is empty it will start returning zeros
+			if len(record) == 0 {
+				tx.Commit()
+				wg.Done()
+				return
+			}
+
+			//create strings for column names to insert
+			//and string for all the values
+			columns := make([]string, 0, len(record))
+			stopsArgs := make([]interface{}, 0, len(record))
+			placeHolders := make([]string, 0, len(record))
+			for k, v := range record {
+				columns = append(columns, k)
+				stopsArgs = append(stopsArgs, v)
+				placeHolders = append(placeHolders, "?")
+			}
+
+			columnsString := strings.Join(columns, ", ")
+			// fmt.Println(columnsString)
+			placeHoldersString := strings.Join(placeHolders, ", ")
+
+			//create the prepared statment
+			stmt, err := tx.Prepare("INSERT INTO test." + recordType + "(" + columnsString + ") VALUES(" + placeHoldersString + ")")
+			if err != nil {
+				// log.Fatal(err)
+				fmt.Println("prepare error")
+				fmt.Println(err)
+			}
+
+			//execute the prepared statment
+			res, err := stmt.Exec(stopsArgs...)
+			if err != nil {
+				// log.Fatal(err)
+				fmt.Println("Exec error")
+				fmt.Println(err)
+			}
+
+			//close the statment
+			stmt.Close()
+
+			//debug info
+			_, err = res.LastInsertId()
+			if err != nil {
+				// log.Fatal(err)
+				fmt.Println(err)
+			}
+			_, err = res.RowsAffected()
+			if err != nil {
+				// log.Fatal(err)
+				fmt.Println(err)
+			}
+
 		}
-
-		columnsString := strings.Join(columns, ", ")
-		// fmt.Println(columnsString)
-		placeHoldersString := strings.Join(placeHolders, ", ")
-
-		stmt, err := db.Prepare("INSERT INTO test." + recordType + "(" + columnsString + ") VALUES(" + placeHoldersString + ")")
-		if err != nil {
-			// log.Fatal(err)
-			fmt.Println("prepare error")
-			fmt.Println(err)
-		}
-
-		res, err := stmt.Exec(stopsArgs...)
-		if err != nil {
-			// log.Fatal(err)
-			fmt.Println("Exec error")
-			fmt.Println(err)
-		}
-
-		//debug info
-		_, err = res.LastInsertId()
-		if err != nil {
-			// log.Fatal(err)
-			fmt.Println(err)
-		}
-		_, err = res.RowsAffected()
-		if err != nil {
-			// log.Fatal(err)
-			fmt.Println(err)
-		}
-		// log.Printf("ID = %d, affected = %d\n", lastId, rowCnt)
-		// fmt.Printf("affected = %d\n", rowCnt)
-
-		// i++
-		// if i == 100 {
-		// 	tx.Commit()
-		// 	i = 0
-		// 	fmt.Println("commiting")
-		// }
-
+		//!debug
+		// fmt.Println(" commiting")
+		tx.Commit()
 	}
 
-	wg.Done()
+	// wg.Done()
 }
 
 func fileList(dir string) []string {
@@ -114,6 +138,7 @@ func main() {
 	const AppVersion = "0.1.0"
 	versionPtr := flag.Bool("v", false, "Show Version Number")
 	cdrFileName := flag.String("f", "", "Single file you wish to process")
+	transactionChunk := flag.Int("t", 50, "Number of records to insert in a single transaction. experminting with this number can provide better perfomance sometimes. 500 and 1000 have been tested on a laptop")
 	// Once all flags are declared, call `flag.Parse()`
 	// to execute the command-line parsing.
 	flag.Parse()
@@ -204,9 +229,9 @@ func main() {
 
 		//Begin inserting CDR Data
 		wg.Add(3)
-		go saveRecord(&wg, *db, stopRecords, "stops")
-		go saveRecord(&wg, *db, attemptRecords, "attempts")
-		go saveRecord(&wg, *db, startRecords, "starts")
+		go saveRecord(&wg, *db, stopRecords, "stops", transactionChunk)
+		go saveRecord(&wg, *db, attemptRecords, "attempts", transactionChunk)
+		go saveRecord(&wg, *db, startRecords, "starts", transactionChunk)
 		wg.Wait() //Wait for the concurrent routines to call 'done'
 	}
 
