@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-23 21:13:24
+* @Last Modified time: 2015-04-23 21:33:16
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -142,11 +142,16 @@ func main() {
 	}
 
 	for {
+
+		var singleLoop bool
 		// var fileToOpen string
 		var files []string
 		if *cdrFileName != "" {
 			fileToOpen := *cdrFileName
 			files = append(files, fileToOpen)
+			// if we are processing a single file to not loop around
+			// aka do not run as a daemon
+			singleLoop = true
 		} else {
 			files = FileHandling.FileList(configuration.FileDir)
 		}
@@ -232,6 +237,13 @@ func main() {
 			go saveRecord(&wg, *db, startRecords, "starts", transactionChunk)
 			wg.Wait() //Wait for the concurrent routines to call 'done'
 		}
-	}
+
+		// if we are set to only loop once
+		// return here to end the program
+		if singleLoop {
+			fmt.Println("Work Complete")
+			return
+		}
+	} //end of main loop
 
 }
