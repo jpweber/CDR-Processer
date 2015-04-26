@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-23 21:33:16
+* @Last Modified time: 2015-04-26 00:34:54
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -179,7 +179,7 @@ func main() {
 
 		// I don't like this giant loop but its a simple way to start and test
 		for _, file := range files {
-			csvFile, err := os.Open("ACT/" + file)
+			csvFile, err := os.Open(file)
 			if err != nil {
 				fmt.Println(err)
 			}
