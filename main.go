@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-27 16:15:27
+* @Last Modified time: 2015-04-27 17:18:49
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -129,7 +129,7 @@ func main() {
 	// to execute the command-line parsing.
 	flag.Parse()
 	if *versionPtr == true {
-		fmt.Printf("%s %s %s", AppVersion, "Build ", buildNumber)
+		fmt.Printf("%s %s %s", AppVersion, "Build", buildNumber)
 		os.Exit(0)
 	}
 

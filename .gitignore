@@ -8,3 +8,5 @@ main
 ACT/
 
 config.json
+
+bin/cdrprocessor
