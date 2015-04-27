@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-27 10:44:11
+* @Last Modified time: 2015-04-27 13:20:30
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -37,9 +37,6 @@ type Configuration struct {
 }
 
 func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, recordType string, chunk *int) {
-
-	//!debug
-	fmt.Println("saving record")
 	//make a buffered channel to hold all the records
 	c := make(chan map[string]string, len(records)+1)
 	for _, record := range records {
@@ -140,6 +137,12 @@ func main() {
 	err := decoder.Decode(&configuration)
 	if err != nil {
 		fmt.Println("error:", err)
+	}
+
+	//check for and create if needed the archive dir
+	res := FileHandling.ArchivePrecheck(configuration.FileDir)
+	if res != true {
+		os.Exit(1)
 	}
 
 	for {

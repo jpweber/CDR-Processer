@@ -2,7 +2,7 @@
 * @Author: jpweber
 * @Date:   2015-04-23 20:50:06
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-27 10:47:55
+* @Last Modified time: 2015-04-27 13:19:36
  */
 
 package FileHandling
@@ -34,7 +34,6 @@ func FileList(dir string, ext string) []string {
 }
 
 func ArchiveFile(filename string) bool {
-	fmt.Println(filename)
 	archivePath := path.Join(filepath.Dir(filename), "archive", path.Base(filename))
 	err := os.Rename(filename, archivePath)
 	if err != nil {
@@ -105,8 +104,23 @@ func CreateGZ(filename string) bool {
 	return true
 }
 
-//TODO add function to test if archive dir exists already
-//os.IsExist
-// if not try to create the dir
-// os.Mkdir
-// if fails display error that directory does not exist and cannot create it.
+func ArchivePrecheck(cdrpath string) bool {
+	//os.IsExist
+	_, err := os.Stat(cdrpath + "/archive")
+	if err != nil {
+		fmt.Println("Does not exist")
+		err = os.Mkdir(cdrpath+"/archive/", 0755)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		} else {
+			//after we create the dir make recursive call to thos function and run the checks again
+			fmt.Println("calling check again")
+			ArchivePrecheck(cdrpath)
+		}
+	} else {
+		fmt.Println("File exists")
+	}
+	return true
+
+}
