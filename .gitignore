@@ -2,5 +2,6 @@
 *.ACT
 *.csv
 *.proc
+*.gz
 config.json
 main

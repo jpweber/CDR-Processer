@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-26 00:34:54
+* @Last Modified time: 2015-04-27 10:44:11
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -33,6 +33,7 @@ type Configuration struct {
 	DbUser  string
 	DBPass  string
 	DSN     string
+	FileExt string
 }
 
 func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, recordType string, chunk *int) {
@@ -153,7 +154,7 @@ func main() {
 			// aka do not run as a daemon
 			singleLoop = true
 		} else {
-			files = FileHandling.FileList(configuration.FileDir)
+			files = FileHandling.FileList(configuration.FileDir, configuration.FileExt)
 		}
 
 		if len(files) == 0 {
@@ -223,12 +224,6 @@ func main() {
 
 			wg.Wait() //Wait for the concurrent routines to call 'done'
 			fmt.Println("Done parsing file")
-			res := FileHandling.ArchiveFile(file)
-			if res != true {
-				fmt.Println("Error moving file")
-				fmt.Println(file)
-				os.Exit(1)
-			}
 
 			//Begin inserting CDR Data
 			wg.Add(3)
@@ -236,6 +231,14 @@ func main() {
 			go saveRecord(&wg, *db, attemptRecords, "attempts", transactionChunk)
 			go saveRecord(&wg, *db, startRecords, "starts", transactionChunk)
 			wg.Wait() //Wait for the concurrent routines to call 'done'
+
+			//archive the raw files
+			res := FileHandling.ArchiveFile(file)
+			if res != true {
+				fmt.Println("Error moving file")
+				fmt.Println(file)
+				os.Exit(1)
+			}
 		}
 
 		// if we are set to only loop once
