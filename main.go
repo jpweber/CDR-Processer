@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-27 13:20:30
+* @Last Modified time: 2015-04-27 16:15:27
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -12,19 +12,24 @@ package main
 
 import (
 	// "bytes"
+	"CDR-Processer/CDR"
+	"CDR-Processer/FileHandling"
 	"database/sql"
 	"encoding/csv"
 	"encoding/json"
 	"flag"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"CDR-Processer/CDR"
-	"CDR-Processer/FileHandling"
 	"os"
 	"strings"
 	"sync"
 	"time"
 )
+
+//variables for displaying version information
+const AppVersion = "0.2.0"
+
+var buildNumber string
 
 type Configuration struct {
 	FileDir string
@@ -117,8 +122,6 @@ func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, reco
 
 func main() {
 
-	var buildNumber string
-	const AppVersion = "0.1.0"
 	versionPtr := flag.Bool("v", false, "Show Version Number")
 	cdrFileName := flag.String("f", "", "Single file you wish to process")
 	transactionChunk := flag.Int("t", 50, "Number of records to insert in a single transaction. experminting with this number can provide better perfomance sometimes. 500 and 1000 have been tested on a laptop")
@@ -126,7 +129,7 @@ func main() {
 	// to execute the command-line parsing.
 	flag.Parse()
 	if *versionPtr == true {
-		fmt.Println(AppVersion + " Build " + buildNumber)
+		fmt.Printf("%s %s %s", AppVersion, "Build ", buildNumber)
 		os.Exit(0)
 	}
 
