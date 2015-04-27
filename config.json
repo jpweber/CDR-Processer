@@ -4,5 +4,6 @@
     "DbPort" : 3306,
     "DbUser" : "root",
     "DbPass" : "root",
-    "DSN"   : "root:root@tcp(127.0.0.1:3306)/test"
+    "DSN"   : "root:root@tcp(127.0.0.1:3306)/test",
+    "FileExt" : "proc"
 }
