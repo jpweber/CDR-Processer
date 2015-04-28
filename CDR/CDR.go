@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-22 15:24:48
+* @Last Modified time: 2015-04-27 22:40:08
  */
 
 package CDR
@@ -41,7 +41,7 @@ func CreateRecordMap(wg *sync.WaitGroup, records [][]string, recordType string) 
 		recordMap[i] = cdrData
 	}
 	wg.Done()
-	fmt.Println(recordType + "Done")
+	// fmt.Println(recordType + "Done")
 	return recordMap
 }
 

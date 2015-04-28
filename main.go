@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-27 17:40:22
+* @Last Modified time: 2015-04-27 22:58:20
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -151,7 +151,10 @@ func main() {
 	for {
 
 		var singleLoop bool
-		// var fileToOpen string
+
+		//start timer for loop. This is just for performance information
+		t0 := time.Now()
+
 		var files []string
 		if *cdrFileName != "" {
 			fileToOpen := *cdrFileName
@@ -164,9 +167,11 @@ func main() {
 		}
 
 		if len(files) == 0 {
-			fmt.Println("Not files waiting. Sleeping for 60 seconds")
+			fmt.Println("No files waiting. Sleeping for 60 seconds")
 			time.Sleep(time.Second * 60)
 			continue
+		} else {
+			fmt.Printf("Processing %d Files\n", len(files))
 		}
 
 		// start db stuff
@@ -229,7 +234,7 @@ func main() {
 			}()
 
 			wg.Wait() //Wait for the concurrent routines to call 'done'
-			fmt.Println("Done parsing file")
+			// fmt.Println("Done parsing file")
 
 			//Begin inserting CDR Data
 			wg.Add(3)
@@ -253,6 +258,8 @@ func main() {
 			fmt.Println("Work Complete")
 			return
 		}
+
+		fmt.Printf("%d Files took %f Seconds to process\n", len(files), time.Since(t0).Seconds())
 	} //end of main loop
 
 }

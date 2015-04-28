@@ -2,7 +2,7 @@
 * @Author: jpweber
 * @Date:   2015-04-23 20:50:06
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-27 13:19:36
+* @Last Modified time: 2015-04-27 22:40:47
  */
 
 package FileHandling
@@ -99,7 +99,7 @@ func CreateGZ(filename string) bool {
 		os.Exit(1)
 	}
 
-	fmt.Printf("%s compressed to %s\n", filename, filename+".gz")
+	// fmt.Printf("%s compressed to %s\n", filename, filename+".gz")
 
 	return true
 }
@@ -115,11 +115,11 @@ func ArchivePrecheck(cdrpath string) bool {
 			return false
 		} else {
 			//after we create the dir make recursive call to thos function and run the checks again
-			fmt.Println("calling check again")
+			// fmt.Println("calling check again")
 			ArchivePrecheck(cdrpath)
 		}
 	} else {
-		fmt.Println("File exists")
+		// fmt.Println("File exists")
 	}
 	return true
 
