@@ -2,6 +2,9 @@
 buildNumber=`date +%Y%m%d%.%H%M%S`
 go build -ldflags "-X main.buildNumber $buildNumber" -o bin/cdrprocessor main.go
 
+#link file in bin to Current dir
+ln -s bin/cdrprocessor ./
+
 #prompt user for app server name (app01 etc) and gatway type (gsx|nbs)
 echo -n "What is the hostname or IP of the database server you wish to save records to?: "
 read DBHOST
