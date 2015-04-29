@@ -8,6 +8,8 @@ Currently only saving to MySQL other databases on the roadmap.
 
 Can be run as daemon or as command line tool. In daemon mode will process files from directory or specific location. As CLI tool can take filename as argument and will only process that file
 
+If you do not want to build from source in the bin dir there are binaries for OS X and Linux 64bit. 
+
 ## Installation
 #### Application
 Run the install.sh script and answer the questions. This will create an exectuable for your in the bin dir and will create the tables for you in your MySQL database. You can now copy your binary and your config file to where ever you which to run them from. 
