@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-27 22:58:20
+* @Last Modified time: 2015-04-29 21:58:32
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -41,7 +41,7 @@ type Configuration struct {
 	FileExt string
 }
 
-func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, recordType string, chunk *int) {
+func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, recordType string, chunk *int, dbName string) {
 	//make a buffered channel to hold all the records
 	c := make(chan map[string]string, len(records)+1)
 	for _, record := range records {
@@ -81,7 +81,7 @@ func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, reco
 			placeHoldersString := strings.Join(placeHolders, ", ")
 
 			//create the prepared statment
-			stmt, err := tx.Prepare("INSERT INTO test." + recordType + "(" + columnsString + ") VALUES(" + placeHoldersString + ")")
+			stmt, err := tx.Prepare("INSERT INTO " + dbName + "." + recordType + "(" + columnsString + ") VALUES(" + placeHoldersString + ")")
 			if err != nil {
 				// log.Fatal(err)
 				fmt.Println("prepare error")
@@ -236,11 +236,16 @@ func main() {
 			wg.Wait() //Wait for the concurrent routines to call 'done'
 			// fmt.Println("Done parsing file")
 
+			//get the dbname from the dsn in the config
+			dsnParts := strings.Split(configuration.DSN, "/")
+			dbName := dsnParts[1]
+			// fmt.Println(dbName)
+
 			//Begin inserting CDR Data
 			wg.Add(3)
-			go saveRecord(&wg, *db, stopRecords, "stops", transactionChunk)
-			go saveRecord(&wg, *db, attemptRecords, "attempts", transactionChunk)
-			go saveRecord(&wg, *db, startRecords, "starts", transactionChunk)
+			go saveRecord(&wg, *db, stopRecords, "stops", transactionChunk, dbName)
+			go saveRecord(&wg, *db, attemptRecords, "attempts", transactionChunk, dbName)
+			go saveRecord(&wg, *db, startRecords, "starts", transactionChunk, dbName)
 			wg.Wait() //Wait for the concurrent routines to call 'done'
 
 			//archive the raw files
