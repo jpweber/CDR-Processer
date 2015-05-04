@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-05-04 12:51:15
+* @Last Modified time: 2015-05-04 12:54:13
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -28,7 +28,7 @@ import (
 )
 
 //variables for displaying version information
-const AppVersion = "0.9.1"
+const AppVersion = "0.9.2"
 
 var buildNumber string
 

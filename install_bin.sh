@@ -1,25 +1,39 @@
 #!/bin/bash
+OS=`uname`
+if [ $OS == "Linux" ]
+    then
+    echo "Using linux binary"
+    ln -s bin/cdrprocessor_linux ./
+fi
 
 #link file in bin to Current dir
 ln -s bin/cdrprocessor ./
 
-#prompt user for app server name (app01 etc) and gatway type (gsx|nbs)
-echo -n "What is the hostname or IP of the database server you wish to save records to?: "
-read DBHOST
+#prompt user to install database tables
+echo -n "Do you wish to have me install the database tables? [y/n]:"
+read DBTABLES
 
-echo -n "What is the username to login with to create tables?: "
-read DBUSER
+if [ $DBTABLES == y ]
+    then 
 
-echo -n "What is The Password to use for $DBUSER?: "
-read DBPASS
+    #prompt user for app server name (app01 etc) and gatway type (gsx|nbs)
+    echo -n "What is the hostname or IP of the database server you wish to save records to?: "
+    read DBHOST
 
-echo -n "What is The Name of the database to create the tables in?: "
-read DBNAME
+    echo -n "What is the username to login with to create tables?: "
+    read DBUSER
 
-echo "ok I will be creating Starts, Stops and Attempts tables on $DBHOST as $DBUSER in the Database $DBNAME"
+    echo -n "What is The Password to use for $DBUSER?: "
+    read DBPASS
 
-`mysql -u $DBUSER -p$DBPASS -h $DBHOST $DBNAME < SQL/stops_table.sql`
-`mysql -u $DBUSER -p$DBPASS -h $DBHOST $DBNAME < SQL/starts_table.sql`
-`mysql -u $DBUSER -p$DBPASS -h $DBHOST $DBNAME < SQL/attempts_table.sql`
+    echo -n "What is The Name of the database to create the tables in?: "
+    read DBNAME
+
+    echo "ok I will be creating Starts, Stops and Attempts tables on $DBHOST as $DBUSER in the Database $DBNAME"
+
+    `mysql -u $DBUSER -p$DBPASS -h $DBHOST $DBNAME < SQL/stops_table.sql`
+    `mysql -u $DBUSER -p$DBPASS -h $DBHOST $DBNAME < SQL/starts_table.sql`
+    `mysql -u $DBUSER -p$DBPASS -h $DBHOST $DBNAME < SQL/attempts_table.sql`
+fi
 
 echo "Install process is complete. Now edit config.json.default and save as config.json"
