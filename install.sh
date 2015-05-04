@@ -1,13 +1,16 @@
 #!/bin/bash
 OS=`uname`
-if [ $OS == "Linux" ]
-    then
-    echo "Using linux binary"
-    ln -s bin/cdrprocessor_linux ./
-fi
+#if [ $OS == "Linux" ]
+#    then
+#fi
 
-#link file in bin to Current dir
-ln -s bin/cdrprocessor ./
+#copy binary to system location
+mkdir -p /usr/local/cargo
+cp cargo /usr/local/cargo
+
+#copy config to /etc
+mkdir /etc/cargo
+cp cargo.conf.default /etc/cargo/cargo.conf
 
 #prompt user to install database tables
 echo -n "Do you wish to have me install the database tables? [y/n]:"
@@ -36,4 +39,4 @@ if [ $DBTABLES == y ]
     `mysql -u $DBUSER -p$DBPASS -h $DBHOST $DBNAME < SQL/attempts_table.sql`
 fi
 
-echo "Install process is complete. Now edit config.json.default and save as config.json"
+echo "Install process is complete. Now edit /etc/cargo/cargo.conf to contain your confiruration parameters"
