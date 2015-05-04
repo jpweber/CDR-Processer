@@ -1,0 +1,13 @@
+[required]
+# The full path to the directory that stores uncompressed CDR files
+FileDir = "/path/to/cdr/files" 
+
+# The Data Source Name, aka how to connect to your database. 
+# Format is as follows:
+# <username>:<password>@<host>:<port>/<database>
+DSN = "root:root@tcp(127.0.0.1:3306)/cdrdatabasename"
+
+# The file extention of the files to look for. 
+# For exampl if ACT is listed as your extention the application will 
+# look in your <FileDir> for *.ACT files.
+FileExt = "ACT"

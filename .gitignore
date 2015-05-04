@@ -3,6 +3,6 @@
 *.csv
 *.proc
 *.gz
-config.json
+cargo.conf
 main
 ACT/

@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-05-04 12:54:13
+* @Last Modified time: 2015-05-04 13:46:41
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -16,7 +16,8 @@ import (
 	"CDR-Processer/FileHandling"
 	"database/sql"
 	"encoding/csv"
-	"encoding/json"
+	// "encoding/json"
+	"code.google.com/p/gcfg"
 	"flag"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
@@ -33,13 +34,15 @@ const AppVersion = "0.9.2"
 var buildNumber string
 
 type Configuration struct {
-	FileDir string
-	DbHost  string
-	DbPort  int
-	DbUser  string
-	DBPass  string
-	DSN     string
-	FileExt string
+	Required struct {
+		FileDir string
+		DbHost  string
+		DbPort  int
+		DbUser  string
+		DBPass  string
+		DSN     string
+		FileExt string
+	}
 }
 
 func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, recordType string, chunk *int, dbName string) {
@@ -140,16 +143,18 @@ func main() {
 	}
 
 	//load config from from config file
-	configFile, _ := os.Open("config.json")
-	decoder := json.NewDecoder(configFile)
-	configuration := Configuration{}
-	err := decoder.Decode(&configuration)
+	// configFile, _ := os.Open("config.json")
+	// decoder := json.NewDecoder(configFile)
+	// configuration := Configuration{}
+	// err := decoder.Decode(&configuration)
+	var configuration Configuration
+	err := gcfg.ReadFileInto(&configuration, "cargo.conf")
 	if err != nil {
 		fmt.Println("error:", err)
 	}
 
 	//check for and create if needed the archive dir
-	res := FileHandling.ArchivePrecheck(configuration.FileDir)
+	res := FileHandling.ArchivePrecheck(configuration.Required.FileDir)
 	if res != true {
 		os.Exit(1)
 	}
@@ -183,7 +188,7 @@ func main() {
 			// aka do not run as a daemon
 			singleLoop = true
 		} else {
-			files = FileHandling.FileList(configuration.FileDir, configuration.FileExt)
+			files = FileHandling.FileList(configuration.Required.FileDir, configuration.Required.FileExt)
 		}
 
 		if len(files) == 0 {
@@ -195,7 +200,7 @@ func main() {
 		}
 
 		// start db stuff
-		db, err := sql.Open("mysql", configuration.DSN)
+		db, err := sql.Open("mysql", configuration.Required.DSN)
 		if err != nil {
 			// log.Fatal(err)
 			fmt.Println(err)
@@ -258,7 +263,7 @@ func main() {
 			fmt.Println("Done parsing file")
 
 			//get the dbname from the dsn in the config
-			dsnParts := strings.Split(configuration.DSN, "/")
+			dsnParts := strings.Split(configuration.Required.DSN, "/")
 			dbName := dsnParts[1]
 			// fmt.Println(dbName)
 
