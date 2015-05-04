@@ -2,7 +2,7 @@
 * @Author: Jim Weber"
 * @Date:   2015-01-28 10:09:26"
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-27 22:40:08
+* @Last Modified time: 2015-05-04 17:05:19
  */
 
 package CDR
@@ -102,7 +102,7 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 			cdrMap[key] = value
 		}
 	} else {
-		// fmt.Println("Accounting ID not found")
+		// fmt.Println("not found")
 	}
 
 	//CMHGSX3:03-CMHGSX3-NTAND-ISUP01
@@ -111,7 +111,7 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		cdrMap["RS_Gateway"] = routeSelectedSfs["RS_Gateway"]
 		cdrMap["RS_TrunkGroup"] = routeSelectedSfs["RS_Trunkgroup"]
 	} else {
-		// fmt.Println("Accounting ID not found")
+		// fmt.Println("not found")
 	}
 
 	if cdrMap["Ingress_IP_Circuit_End_Point"] != "" {
@@ -119,7 +119,7 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		cdrMap["IIPE_local"] = ingressIpSfs["ingressIPendpoint_local"]
 		cdrMap["IIPE_remote"] = ingressIpSfs["ingressIPendpoint_remote"]
 	} else {
-		// fmt.Println("Accounting ID not found")
+		// fmt.Println("not found")
 	}
 
 	if cdrMap["Egress_IP_Circuit_End_Point"] != "" {
@@ -127,7 +127,7 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 		cdrMap["EIPE_local"] = egressIpSfs["egressIPendpoint_local"]
 		cdrMap["EIPE_remote"] = egressIpSfs["egressIPendpoint_remote"]
 	} else {
-		// fmt.Println("Accounting ID not found")
+		// fmt.Println(" not found")
 	}
 
 	if cdrMap["Ingress_Protocol_Variant_Spec_Data"] != "" {
@@ -136,7 +136,7 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 			cdrMap[key] = value
 		}
 	} else {
-		// fmt.Println("Accounting ID not found")
+		// fmt.Println(" not found")
 	}
 
 	if cdrMap["Egress_Protocol_Variant_Spec_Data"] != "" {
@@ -145,7 +145,7 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 			cdrMap[key] = value
 		}
 	} else {
-		// fmt.Println("Accounting ID not found")
+		// fmt.Println("not found")
 	}
 
 	if cdrMap["Ingress_Codec_Type"] != "" {
@@ -154,7 +154,7 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 			cdrMap[key] = value
 		}
 	} else {
-		// fmt.Println("Accounting ID not found")
+		// fmt.Println("not found")
 	}
 
 	if cdrMap["Egress_Codec_Type"] != "" {
@@ -163,7 +163,7 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 			cdrMap[key] = value
 		}
 	} else {
-		// fmt.Println("Accounting ID not found")
+		// fmt.Println("not found")
 	}
 
 	if cdrMap["Call_Setup_Delay"] != "" {
@@ -172,7 +172,7 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 			cdrMap[key] = value
 		}
 	} else {
-		// fmt.Println("Accounting ID not found")
+		// fmt.Println("not found")
 	}
 
 	if cdrMap["Ingress_DSP_Data"] != "" {
@@ -181,7 +181,7 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 			cdrMap[key] = value
 		}
 	} else {
-		// fmt.Println("Accounting ID not found")
+		// fmt.Println("not found")
 	}
 
 	if cdrMap["Egress_DSP_Data"] != "" {
@@ -190,7 +190,7 @@ func BreakOutSubFields(cdrMap map[string]string) map[string]string {
 			cdrMap[key] = value
 		}
 	} else {
-		// fmt.Println("Accounting ID not found")
+		// fmt.Println("not found")
 	}
 
 	return cdrMap

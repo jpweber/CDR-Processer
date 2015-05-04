@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-05-04 13:46:41
+* @Last Modified time: 2015-05-04 17:02:56
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -21,6 +21,8 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"log"
+	"log/syslog"
 	"os"
 	"os/signal"
 	"strings"
@@ -142,6 +144,13 @@ func main() {
 		os.Exit(0)
 	}
 
+	logwriter, e := syslog.New(syslog.LOG_NOTICE, "CARGO")
+	if e == nil {
+		log.SetOutput(logwriter)
+	}
+	log.SetFlags(0)
+	log.Println("CARGO Starting")
+
 	//load config from from config file
 	// configFile, _ := os.Open("config.json")
 	// decoder := json.NewDecoder(configFile)
@@ -151,6 +160,7 @@ func main() {
 	err := gcfg.ReadFileInto(&configuration, "cargo.conf")
 	if err != nil {
 		fmt.Println("error:", err)
+		log.Fatal("error", err)
 	}
 
 	//check for and create if needed the archive dir
@@ -169,6 +179,7 @@ func main() {
 	go func() {
 		for _ = range signalChan {
 			fmt.Println("\nReceived an interrupt, Waiting for archiving functions to complete...\n")
+			log.Println("CARGO Received an interrupt, Waiting for archiving functions to complete")
 			wantToExit <- true
 		}
 	}()
@@ -192,24 +203,23 @@ func main() {
 		}
 
 		if len(files) == 0 {
-			fmt.Println("No files waiting. Sleeping for 60 seconds")
+			log.Println("No files waiting. Sleeping for 60 seconds")
 			time.Sleep(time.Second * 60)
 			continue
 		} else {
-			fmt.Printf("Processing %d Files\n", len(files))
+			log.Printf("Processing %d Files\n", len(files))
 		}
 
 		// start db stuff
 		db, err := sql.Open("mysql", configuration.Required.DSN)
 		if err != nil {
-			// log.Fatal(err)
-			fmt.Println(err)
+			log.Fatal(err)
 		}
 
 		//test our connection to make sure the DB is reachable.
 		err = db.Ping()
 		if err != nil {
-			fmt.Println(err)
+			log.Fatal(err)
 		}
 
 		defer db.Close()
@@ -220,6 +230,7 @@ func main() {
 			csvFile, err := os.Open(file)
 			if err != nil {
 				fmt.Println(err)
+				log.Fatal(err)
 			}
 
 			reader := csv.NewReader(csvFile)
@@ -227,7 +238,7 @@ func main() {
 			csvData, err := reader.ReadAll()
 
 			if err != nil {
-				fmt.Println(err)
+				log.Fatal(err)
 				os.Exit(1)
 			}
 			csvFile.Close()
@@ -260,12 +271,11 @@ func main() {
 			}()
 
 			wg.Wait() //Wait for the concurrent routines to call 'done'
-			fmt.Println("Done parsing file")
+			log.Println("Done parsing file")
 
 			//get the dbname from the dsn in the config
 			dsnParts := strings.Split(configuration.Required.DSN, "/")
 			dbName := dsnParts[1]
-			// fmt.Println(dbName)
 
 			//Begin inserting CDR Data
 			wg.Add(3)
@@ -275,12 +285,12 @@ func main() {
 			wg.Wait() //Wait for the concurrent routines to call 'done'
 
 			//archive the raw files
-			fmt.Println("Archiving " + file)
+			log.Println("Archiving " + file)
 			res := FileHandling.ArchiveFile(file)
 			time.Sleep(time.Second * 5)
 			if res != true {
-				fmt.Println("Error moving file")
-				fmt.Println(file)
+				log.Println("Error moving file")
+				log.Println(file)
 				os.Exit(1)
 			} else {
 				//if the archive succeeds check and see if a user
@@ -289,7 +299,7 @@ func main() {
 				select {
 				case exitStatus := <-wantToExit:
 					if exitStatus {
-						fmt.Println("ready to exit")
+						log.Println("Exiting Gracefully")
 						os.Exit(0)
 					}
 				default:
@@ -308,6 +318,7 @@ func main() {
 		}
 
 		fmt.Printf("%d Files took %f Seconds to process\n", len(files), time.Since(t0).Seconds())
+		log.Printf("%d Files took %f Seconds to process\n", len(files), time.Since(t0).Seconds())
 	} //end of main loop
 
 }

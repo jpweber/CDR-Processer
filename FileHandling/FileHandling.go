@@ -2,7 +2,7 @@
 * @Author: jpweber
 * @Date:   2015-04-23 20:50:06
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-27 22:40:47
+* @Last Modified time: 2015-05-04 17:08:32
  */
 
 package FileHandling
@@ -23,6 +23,7 @@ func FileList(dir string, ext string) []string {
 	files, err := filepath.Glob(dir + "/*." + ext)
 	if err != nil {
 		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	fileNames := make([]string, 0)
@@ -38,6 +39,7 @@ func ArchiveFile(filename string) bool {
 	err := os.Rename(filename, archivePath)
 	if err != nil {
 		fmt.Println(err)
+		log.Fatal(err)
 		return false
 	}
 
@@ -45,16 +47,16 @@ func ArchiveFile(filename string) bool {
 	//gzip the archived file
 	res := CreateGZ(archivePath)
 	if res != true {
-		fmt.Println("Error GZipping file")
-		fmt.Println(archivePath)
+		log.Println("Error GZipping file")
+		log.Println(archivePath)
 		os.Exit(1)
 	}
 
 	//delete the uncomressed file
 	err = os.Remove(archivePath)
 	if err != nil {
-		fmt.Println("Error removing uncompressed file")
-		fmt.Println(archivePath)
+		log.Println("Error removing uncompressed file")
+		log.Println(archivePath)
 		os.Exit(1)
 	}
 
@@ -66,7 +68,7 @@ func CreateGZ(filename string) bool {
 	rawfile, err := os.Open(filename)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		os.Exit(1)
 	}
 	defer rawfile.Close()
@@ -82,7 +84,7 @@ func CreateGZ(filename string) bool {
 	_, err = buffer.Read(rawbytes)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		os.Exit(1)
 	}
 
@@ -96,10 +98,9 @@ func CreateGZ(filename string) bool {
 
 	if err != nil {
 		fmt.Println(err)
+		log.Println(err)
 		os.Exit(1)
 	}
-
-	// fmt.Printf("%s compressed to %s\n", filename, filename+".gz")
 
 	return true
 }
@@ -108,7 +109,6 @@ func ArchivePrecheck(cdrpath string) bool {
 	//os.IsExist
 	_, err := os.Stat(cdrpath + "/archive")
 	if err != nil {
-		fmt.Println("Does not exist")
 		err = os.Mkdir(cdrpath+"/archive/", 0755)
 		if err != nil {
 			fmt.Println(err)
