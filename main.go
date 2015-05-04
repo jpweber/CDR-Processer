@@ -2,7 +2,7 @@
 * @Author: Jim Weber
 * @Date:   2015-01-28 11:48:33
 * @Last Modified by:   jpweber
-* @Last Modified time: 2015-04-29 21:58:32
+* @Last Modified time: 2015-05-04 12:51:15
  */
 
 //parses CDR file in to key value map and then does something with it
@@ -21,6 +21,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"os"
+	"os/signal"
 	"strings"
 	"sync"
 	"time"
@@ -48,6 +49,8 @@ func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, reco
 		// fill buffered channel with data
 		c <- record
 	}
+	//close the buffered channel. This will hold all existing data
+	//but will now take anymore new data. Works as a queue.
 	close(c)
 
 	for {
@@ -55,6 +58,9 @@ func saveRecord(wg *sync.WaitGroup, db sql.DB, records []map[string]string, reco
 		tx, _ := db.Begin()
 
 		var record map[string]string
+		// pull records out of the buffered channel to insert to the database
+		// pull out N (chunk) records then commit transaction.
+		// Continue this until the channel is empty
 		for i := 0; i < *chunk; i++ {
 			record = <-c
 
@@ -148,6 +154,20 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Wait for a SIGINT (perhaps triggered by user with CTRL-C)
+	// Then send a true bool to the wantToExit channel. The file archive process below
+	// will then exit after it finishes any file work it is in the middle of.
+	// This is a way to make clean exits if they are user intiated.
+	signalChan := make(chan os.Signal, 1)
+	wantToExit := make(chan bool)
+	signal.Notify(signalChan, os.Interrupt)
+	go func() {
+		for _ = range signalChan {
+			fmt.Println("\nReceived an interrupt, Waiting for archiving functions to complete...\n")
+			wantToExit <- true
+		}
+	}()
+
 	for {
 
 		var singleLoop bool
@@ -191,6 +211,7 @@ func main() {
 
 		// I don't like this giant loop but its a simple way to start and test
 		for _, file := range files {
+			fmt.Println("starting loop")
 			csvFile, err := os.Open(file)
 			if err != nil {
 				fmt.Println(err)
@@ -234,7 +255,7 @@ func main() {
 			}()
 
 			wg.Wait() //Wait for the concurrent routines to call 'done'
-			// fmt.Println("Done parsing file")
+			fmt.Println("Done parsing file")
 
 			//get the dbname from the dsn in the config
 			dsnParts := strings.Split(configuration.DSN, "/")
@@ -249,12 +270,29 @@ func main() {
 			wg.Wait() //Wait for the concurrent routines to call 'done'
 
 			//archive the raw files
+			fmt.Println("Archiving " + file)
 			res := FileHandling.ArchiveFile(file)
+			time.Sleep(time.Second * 5)
 			if res != true {
 				fmt.Println("Error moving file")
 				fmt.Println(file)
 				os.Exit(1)
+			} else {
+				//if the archive succeeds check and see if a user
+				//has tried to end the application
+				//if they have then exit, otherewise keep going
+				select {
+				case exitStatus := <-wantToExit:
+					if exitStatus {
+						fmt.Println("ready to exit")
+						os.Exit(0)
+					}
+				default:
+					//do nothing
+				}
+
 			}
+
 		}
 
 		// if we are set to only loop once
